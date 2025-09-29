@@ -19,4 +19,5 @@ public class ParentDTO {
     private UUID userId;
     private String email;
     private List<StudentDTO> studentDTOList;
+    private String password;
 }

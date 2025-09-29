@@ -1,8 +1,11 @@
 package com.example.GoSchool.service;
 
+import com.example.GoSchool.dtos.ParentDTO;
+import com.example.GoSchool.model.Location;
 import com.example.GoSchool.model.Parent;
 import com.example.GoSchool.model.Student;
 import com.example.GoSchool.model.Users;
+import com.example.GoSchool.repository.LocationRepository;
 import com.example.GoSchool.repository.ParentRepository;
 import com.example.GoSchool.repository.StudentRepository;
 import com.example.GoSchool.repository.UserRepository;
@@ -12,31 +15,59 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+
 @Service
 public class ParentService {
 
     private final ParentRepository parentRepository;
     private final UserRepository userRepository;
     private final StudentRepository studentRepository;
+    private final LocationRepository locationRepository;
 
     @Autowired
     public ParentService(ParentRepository parentRepository,
                          UserRepository userRepository,
-                         StudentRepository studentRepository) {
+                         StudentRepository studentRepository, LocationRepository locationRepository) {
         this.parentRepository = parentRepository;
         this.userRepository = userRepository;
         this.studentRepository = studentRepository;
+        this.locationRepository = locationRepository;
     }
 
-    // Create a new Parent
-    public Parent createParent(Parent parent, UUID userId) {
+    public void createParent(ParentDTO parentDTO, UUID userId) {
+        // Fetch user
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
+        // Handle location safely
+        Location location;
+        UUID locationId = parentDTO.getParentLocation().getLocationUUID();
+        if (locationId != null) {
+            // Existing location
+            location = locationRepository.findById(locationId)
+                    .orElseThrow(() -> new RuntimeException("Location not found with id: " + locationId));
+        } else {
+            // New location
+            Location newLoc = new Location();
+            newLoc.setCity(parentDTO.getParentLocation().getCity());
+            newLoc.setProvince(parentDTO.getParentLocation().getProvince());
+            newLoc.setAddress(parentDTO.getParentLocation().getAddress());
+            newLoc.setPostalCode(parentDTO.getParentLocation().getPostalCode());
+            location = locationRepository.save(newLoc);
+        }
+
+        // Create parent
+        Parent parent = new Parent();
+        parent.setParentUUID(parentDTO.getParentUUID());
+        parent.setFirstName(parentDTO.getFirstName());
+        parent.setSurname(parentDTO.getSurname());
+        parent.setContact(parentDTO.getContacts());
+        parent.setParentLocation(location);
         parent.setUserAccount(user);
-        // Children list can be empty initially or populated later
-        return parentRepository.save(parent);
+
+        parentRepository.save(parent);
     }
+
 
     // Get parent by UUID
     public Parent getParentById(UUID parentUUID) {

@@ -2,7 +2,6 @@ package com.example.GoSchool.dtos;
 
 import com.example.GoSchool.constant.PaymentMethod;
 import com.example.GoSchool.constant.PaymentStatus;
-import com.example.GoSchool.model.Student;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -78,7 +78,11 @@ public class CorsConfig {
                             // Public endpoints
                             .requestMatchers(
                                     "/uploads/**",
-                                    "/auth/api/admins"
+                                    "/auth/api/admins",
+                                    "/auth/api/parents/register",
+                                    "/auth/api/users/register",
+                                    "/auth/api/users/login",
+                                    "/auth/api/drivers/register"
                             ).permitAll()
                             // Authenticated endpoints
                             .requestMatchers("/auth/profile").authenticated()

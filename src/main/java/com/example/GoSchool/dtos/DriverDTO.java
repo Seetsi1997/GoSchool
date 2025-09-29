@@ -14,11 +14,13 @@ import java.util.UUID;
 public class DriverDTO {
     private UUID driverUUID;
     private String driverName;
-    private String driverSurname; // match entity
+    private String driverSurname;
     private LocationDTO driverLocation;
     private int totalNumberOfStudents;
     private List<StudentDTO> assignedStudents;
     private UUID userId;
     private String email;
+    private String driverContact;
+    private String password;
 }
 

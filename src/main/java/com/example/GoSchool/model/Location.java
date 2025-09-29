@@ -34,6 +34,6 @@ public class Location {
     private String postalCode;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "province_id")
+    @Column(name = "province_name")
     private Province province;
 }
