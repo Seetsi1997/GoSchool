@@ -98,7 +98,7 @@ public  class UserController {
         Users user = new Users();
         user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setUsername(capitalizeWords(request.getUsername()));
+        user.setFirstName(capitalizeWords(request.getUsername()));
         user.setRole(request.getRole());
 //        user.setVerified(false);
 //        user.setVerificationToken(UUID.randomUUID().toString());
@@ -147,7 +147,7 @@ public  class UserController {
                     token,
                     user.getRole().name(),
                     user.getEmail(),
-                    user.getUsername(),
+                    user.getFirstName(),
                     user.getUuid()
             ));
 

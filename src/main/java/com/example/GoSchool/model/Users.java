@@ -25,13 +25,12 @@ public class Users {
     @Column(name = "user_email", unique = true, nullable = false)
     private String email;
 
-
     @Column(name = "password", nullable = false)
     @JsonIgnore
     private String password;
 
     @Column(name = "username",  nullable = false)
-    private String username;
+    private String firstName;
 
   /*  @Column(name = "bio")
     private String bio;*/
@@ -66,7 +65,7 @@ public class Users {
         return "Users{" +
                 "id=" + uuid +
                 ", email='" + email + " " +
-                ", name='" + username + " " +
+                ", name='" + firstName + " " +
                 ", verified=" + verified +
                 ", role=" + role +
                 '}';

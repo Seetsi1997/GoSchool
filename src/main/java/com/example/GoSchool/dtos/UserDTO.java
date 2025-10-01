@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.UUID;
 public class UserDTO {
     private UUID id;
     private String email;
-    private String username;
+    private String firstName;
     private String profileImageUrl;
     private Role role;
 }

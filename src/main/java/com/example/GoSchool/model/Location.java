@@ -21,7 +21,7 @@ public class Location {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-   // @Column(name = "location_uuid", updatable = false, nullable = false)
+    @Column(name = "location_uuid", updatable = false, nullable = false)
     private UUID locationUUID;
 
     @Column(name = "city", nullable = false)

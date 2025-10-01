@@ -30,7 +30,7 @@ public class AdminController {
     public ResponseEntity<Users> createAdmin(@RequestBody UserRegistrationDTO request) {
         Users admin = Users.builder()
                 .email(request.getEmail())
-                .username(request.getUsername())
+                .firstName(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.ADMIN)
                 .verified(true)

@@ -13,6 +13,6 @@ public class UserLoginResponse {
     private String token;
     private String role;
     private String email;
-    private String username;
+    private String firstName;
     private UUID uuid;
 }

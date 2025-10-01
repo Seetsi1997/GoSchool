@@ -41,7 +41,7 @@ public class AuthService {
       //  user.setUuid(uuid);
         user.setEmail(email.toLowerCase());
         user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setUsername(capitalizeWords(username));
+        user.setFirstName(capitalizeWords(username));
         user.setRole(role);
         user.setVerified(false);
 
