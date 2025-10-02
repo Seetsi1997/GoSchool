@@ -1,5 +1,6 @@
 package com.example.GoSchool.dtos;
 
+import com.example.GoSchool.constant.Province;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +15,13 @@ public class ParentDTO {
     private UUID parentUUID;
     private String firstName;
     private String surname;
-    private String contacts;
-    private LocationDTO parentLocation;
+    private String contact;
+   // private LocationDTO parentLocation;
+    private UUID locationUUID;
+    private String city;
+    private String address;
+    private String postalCode;
+    private Province province;
     private UUID userId;
     private String email;
     private List<StudentDTO> studentDTOList;

@@ -16,7 +16,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Driver {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
    // @Column(name = "driver_uuid", updatable = false, nullable = false)
@@ -28,7 +27,7 @@ public class Driver {
     @Column(name = "driver_surname", nullable = false)
     private String driverSurname;
 
-    @ManyToOne // because Location is an Entity
+    @ManyToOne
     @JoinColumn(name = "location_id")
     private Location driverLocation;
 
@@ -36,7 +35,7 @@ public class Driver {
     private int totalNumberOfStudents;
 
     @Column(name = "driver_contact", nullable = false)
-    private String driverContact;
+    private String contact;
 
     @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Student> assignedStudents = new ArrayList<>();

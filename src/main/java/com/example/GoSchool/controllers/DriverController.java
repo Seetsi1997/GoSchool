@@ -32,7 +32,7 @@ public class DriverController {
         try {
             Users savedUser = authService.registerBaseUser(
                     driverDTO.getEmail(),
-                    driverDTO.getDriverName() + " " + driverDTO.getDriverSurname(),
+                    driverDTO.getFirstName() + " " + driverDTO.getSurname(),
                     Role.DRIVER,
                     driverDTO.getPassword()
             );

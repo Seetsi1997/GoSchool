@@ -1,5 +1,6 @@
 package com.example.GoSchool.dtos;
 
+import com.example.GoSchool.constant.Province;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,18 @@ import java.util.UUID;
 @AllArgsConstructor
 public class DriverDTO {
     private UUID driverUUID;
-    private String driverName;
-    private String driverSurname;
-    private LocationDTO driverLocation;
+    private String firstName;
+    private String surname;
+    private UUID locationUUID;
+    private String city;
+    private Province province;
+    private String address;
+    private String postalCode;
     private int totalNumberOfStudents;
     private List<StudentDTO> assignedStudents;
     private UUID userId;
     private String email;
-    private String driverContact;
+    private String contact;
     private String password;
 }
 

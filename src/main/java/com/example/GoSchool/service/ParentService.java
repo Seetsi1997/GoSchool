@@ -41,33 +41,50 @@ public class ParentService {
 
         // Handle location safely
         Location location;
-        UUID locationId = parentDTO.getParentLocation().getLocationUUID();
-        if (locationId != null) {
+
+        if (parentDTO.getLocationUUID() != null) {
             // Existing location
-            location = locationRepository.findById(locationId)
-                    .orElseThrow(() -> new RuntimeException("Location not found with id: " + locationId));
+            location = locationRepository.findById(parentDTO.getLocationUUID())
+                    .orElseThrow(() -> new RuntimeException("Location not found with id: " + parentDTO.getLocationUUID()));
         } else {
-            // New location
+            // New location: validate fields
+            if (parentDTO.getCity() == null || parentDTO.getCity().isBlank()
+                    || parentDTO.getProvince() == null
+                    || parentDTO.getAddress() == null || parentDTO.getAddress().isBlank()
+                    || parentDTO.getPostalCode() == null || parentDTO.getPostalCode().isBlank()) {
+                throw new IllegalArgumentException("Complete location details must be provided");
+            }
+
             Location newLoc = new Location();
-            newLoc.setCity(parentDTO.getParentLocation().getCity());
-            newLoc.setProvince(parentDTO.getParentLocation().getProvince());
-            newLoc.setAddress(parentDTO.getParentLocation().getAddress());
-            newLoc.setPostalCode(parentDTO.getParentLocation().getPostalCode());
+            newLoc.setCity(parentDTO.getCity());
+            newLoc.setProvince(parentDTO.getProvince());
+            newLoc.setAddress(parentDTO.getAddress());
+            newLoc.setPostalCode(parentDTO.getPostalCode());
             location = locationRepository.save(newLoc);
         }
 
-        // Create parent
+        // Validate required parent fields
+        if (parentDTO.getContact() == null || parentDTO.getContact().isBlank()) {
+            throw new IllegalArgumentException("Parent contact must be provided");
+        }
+        if (parentDTO.getFirstName() == null || parentDTO.getFirstName().isBlank()) {
+            throw new IllegalArgumentException("Parent first name must be provided");
+        }
+        if (parentDTO.getSurname() == null || parentDTO.getSurname().isBlank()) {
+            throw new IllegalArgumentException("Parent surname must be provided");
+        }
+
+        // Create parent entity
         Parent parent = new Parent();
         parent.setParentUUID(parentDTO.getParentUUID());
         parent.setFirstName(parentDTO.getFirstName());
         parent.setSurname(parentDTO.getSurname());
-        parent.setContact(parentDTO.getContacts());
         parent.setParentLocation(location);
         parent.setUserAccount(user);
+        parent.setContact(parentDTO.getContact());
 
         parentRepository.save(parent);
     }
-
 
     // Get parent by UUID
     public Parent getParentById(UUID parentUUID) {

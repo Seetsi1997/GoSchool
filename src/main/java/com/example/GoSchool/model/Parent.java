@@ -32,7 +32,7 @@ public class Parent {
     private String contact;
 
     @ManyToOne // because Location is an Entity
-    @JoinColumn(name = "location_id", nullable = false, unique = true)
+    @JoinColumn(name = "location_id", nullable = false)
     private Location parentLocation;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)

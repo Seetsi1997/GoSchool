@@ -9,6 +9,7 @@ import com.example.GoSchool.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,36 +46,53 @@ public class DriverService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
+        // Validate required driver fields
+        if (driverDTO.getFirstName() == null || driverDTO.getFirstName().isBlank()) {
+            throw new IllegalArgumentException("Driver name must be provided");
+        }
+        if (driverDTO.getSurname() == null || driverDTO.getSurname().isBlank()) {
+            throw new IllegalArgumentException("Driver surname must be provided");
+        }
+        if (driverDTO.getContact() == null || driverDTO.getContact().isBlank()) {
+            throw new IllegalArgumentException("Driver contact must be provided");
+        }
+        if (driverDTO.getCity() == null || driverDTO.getCity().isBlank()
+                || driverDTO.getProvince() == null
+                || driverDTO.getAddress() == null || driverDTO.getAddress().isBlank()) {
+            throw new IllegalArgumentException("Driver location must be provided");
+        }
+
         // Handle location safely
         Location location;
-        UUID locationId = driverDTO.getDriverLocation().getLocationUUID();
-        if (locationId != null) {
-            location = locationRepository.findById(locationId)
-                    .orElseThrow(() -> new RuntimeException("Location not found with id: " + locationId));
+        if (driverDTO.getLocationUUID() != null) {
+            // Existing location
+            location = locationRepository.findById(driverDTO.getLocationUUID())
+                    .orElseThrow(() -> new RuntimeException("Location not found with id: " + driverDTO.getLocationUUID()));
         } else {
+            // Create new location
             Location newLoc = new Location();
-            newLoc.setCity(driverDTO.getDriverLocation().getCity());
-            newLoc.setProvince(driverDTO.getDriverLocation().getProvince());
-            newLoc.setAddress(driverDTO.getDriverLocation().getAddress());
-            newLoc.setPostalCode(driverDTO.getDriverLocation().getPostalCode());
+            newLoc.setCity(driverDTO.getCity());
+            newLoc.setProvince(driverDTO.getProvince());
+            newLoc.setAddress(driverDTO.getAddress());
+            newLoc.setPostalCode(driverDTO.getPostalCode());
             location = locationRepository.save(newLoc);
         }
 
-        // Create driver first (so we can set it in students)
+        // Create driver
         Driver driver = new Driver();
         driver.setDriverUUID(driverDTO.getDriverUUID());
-        driver.setDriverName(driverDTO.getDriverName());
-        driver.setDriverSurname(driverDTO.getDriverSurname());
+        driver.setDriverName(driverDTO.getFirstName());
+        driver.setDriverSurname(driverDTO.getSurname());
         driver.setDriverLocation(location);
-        driver.setDriverContact(driverDTO.getDriverContact());
+        driver.setContact(driverDTO.getContact());
         driver.setTotalNumberOfStudents(0);
         driver.setUserAccount(user);
 
-        // Map StudentDTO -> Student and set driver
-        List<Student> students = driverDTO.getAssignedStudents().stream()
+        // Map students
+        List<Student> students = driverDTO.getAssignedStudents() != null
+                ? driverDTO.getAssignedStudents().stream()
                 .map(studentDTO -> {
                     Student student = new Student();
-                    // Only set UUID if it exists
                     if (studentDTO.getStudentUUID() != null) {
                         student.setStudentUUID(studentDTO.getStudentUUID());
                     }
@@ -83,14 +101,14 @@ public class DriverService {
                     student.setStudentGrade(studentDTO.getStudentGrade());
                     student.setMonthlyPaymentAmount(studentDTO.getMonthlyPaymentAmount());
                     student.setPaymentStatus(studentDTO.getPaymentStatus());
-                    student.setDriver(driver); // important!
+                    student.setDriver(driver);
                     return student;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                : new ArrayList<>();
 
         driver.setAssignedStudents(students);
 
-        // Save driver (students will cascade if mapped with CascadeType.ALL)
         driverRepository.save(driver);
     }
 
@@ -114,7 +132,7 @@ public class DriverService {
         existingDriver.setDriverSurname(updatedDriver.getDriverSurname());
         existingDriver.setDriverLocation(updatedDriver.getDriverLocation());
         existingDriver.setTotalNumberOfStudents(updatedDriver.getTotalNumberOfStudents());
-        existingDriver.setDriverContact(updatedDriver.getDriverContact());
+        existingDriver.setContact(updatedDriver.getContact());
         // Optional: update assigned students if needed
         existingDriver.setAssignedStudents(updatedDriver.getAssignedStudents());
 
