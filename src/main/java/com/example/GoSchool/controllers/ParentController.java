@@ -36,7 +36,8 @@ public class ParentController {
                     parentDTO.getEmail(),
                     parentDTO.getFirstName() + " " + parentDTO.getSurname(),
                     Role.PARENT,
-                    parentDTO.getPassword()
+                    parentDTO.getPassword(),
+                    parentDTO.getContact()
             );
 
             parentService.createParent(parentDTO, savedUser.getUuid()); // now UUID exists

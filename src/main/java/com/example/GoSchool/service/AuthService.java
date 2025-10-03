@@ -23,7 +23,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Users registerBaseUser(String email, String username, Role role, String rawPassword) {
+    public Users registerBaseUser(String email, String username, Role role, String rawPassword, String contact) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email must not be empty");
         }
@@ -42,6 +42,7 @@ public class AuthService {
         user.setEmail(email.toLowerCase());
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setFirstName(capitalizeWords(username));
+        user.setPhoneNumber(contact);
         user.setRole(role);
         user.setVerified(false);
 

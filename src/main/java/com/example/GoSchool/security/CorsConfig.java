@@ -82,6 +82,9 @@ public class CorsConfig {
                                     "/auth/api/parents/register",
                                     "/auth/api/users/register",
                                     "/auth/api/users/login",
+                                    "/auth/api/users/logout",
+                                    "/auth/api/users/forgot-password",
+                                    "/auth/api/users/reset-password",
                                     "/auth/api/drivers/register"
                             ).permitAll()
                             // Authenticated endpoints

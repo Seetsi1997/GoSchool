@@ -32,6 +32,8 @@ public class Users {
     @Column(name = "username",  nullable = false)
     private String firstName;
 
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
   /*  @Column(name = "bio")
     private String bio;*/
     @Column(name = "profile")

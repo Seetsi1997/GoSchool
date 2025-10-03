@@ -34,7 +34,8 @@ public class DriverController {
                     driverDTO.getEmail(),
                     driverDTO.getFirstName() + " " + driverDTO.getSurname(),
                     Role.DRIVER,
-                    driverDTO.getPassword()
+                    driverDTO.getPassword(),
+                    driverDTO.getContact()
             );
 
             driverService.createDriver(driverDTO, savedUser.getUuid()); // now UUID exists

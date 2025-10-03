@@ -3,6 +3,7 @@ package com.example.GoSchool.controllers;
 import com.example.GoSchool.dtos.*;
 import com.example.GoSchool.model.Users;
 import com.example.GoSchool.repository.UserRepository;
+import com.example.GoSchool.service.EmailService;
 import com.example.GoSchool.service.TokenBlacklistService;
 import com.example.GoSchool.utils.JwtUtil;
 import io.jsonwebtoken.JwtException;
@@ -35,7 +36,7 @@ public  class UserController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final TokenBlacklistService blacklistService;
-    //private  final EmailService emailService;
+    private  final EmailService emailService;
   //  private  final VerificationRepository verificationRepository;
     //private final UserProfileService  userProfileService;
 
@@ -49,7 +50,8 @@ public  class UserController {
                            PasswordEncoder passwordEncoder,
                            UserRepository userRepository,
                            //EmailService emailService,
-                           TokenBlacklistService blacklistService
+                           TokenBlacklistService blacklistService,
+                           EmailService email
                            //VerificationRepository verificationRepository,
                            /*UserProfileService  userProfileService*/) {
         this.authenticationManager = authenticationManager;
@@ -57,6 +59,7 @@ public  class UserController {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.blacklistService = blacklistService;
+        this.emailService = email;
 
     }
 
@@ -146,7 +149,7 @@ public  class UserController {
             return ResponseEntity.ok(new UserLoginResponse(
                     token,
                     user.getRole().name(),
-                    user.getEmail(),
+                    user.getPhoneNumber(),
                     user.getFirstName(),
                     user.getUuid()
             ));
@@ -169,9 +172,14 @@ public  class UserController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO request) {
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email must not be empty"));
+        }
+
         Optional<Users> userOpt = userRepository.findByEmailIgnoreCase(request.getEmail());
         if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email not found"));
+            // For security, you may still return a generic message instead of revealing that the email doesn't exist
+            return ResponseEntity.ok(Map.of("message", "If the email exists, a reset link will be sent"));
         }
 
         Users user = userOpt.get();
@@ -179,11 +187,12 @@ public  class UserController {
         user.setResetToken(token);
         userRepository.save(user);
 
-       /* String resetLink = "http://localhost:4200/auth/reset-password?token=" + token;
-        emailService.sendVerificationEmail(user.getEmail(), resetLink);*/ // Reuse email sender
+        String resetLink = "http://localhost:4200/reset-password?token=" + token;
+        emailService.sendVerificationEmail(user.getEmail(), resetLink);
 
-        return ResponseEntity.ok(Map.of("message", "Reset link sent to your email"));
+        return ResponseEntity.ok(Map.of("message", "If the email exists, a reset link will be sent"));
     }
+
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO request) {
