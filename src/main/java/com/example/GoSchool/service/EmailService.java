@@ -25,7 +25,7 @@ public class EmailService {
                         "Please click the link below to verify your email address:\n" +
                         link + "\n\n" +
                         "If you didn't request this, please ignore this email.\n\n" +
-                        "Best regards,\nIn-Need App"
+                        "Best regards,\nGoSchool App"
         );
         mailSender.send(message);
     }
