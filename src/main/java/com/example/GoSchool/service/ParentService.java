@@ -97,15 +97,20 @@ public class ParentService {
         return parentRepository.findAll();
     }
 
+
+    public Parent getParentByEmail(String email) {
+        return parentRepository.findByUserAccountEmail(email)
+                .orElseThrow(() -> new RuntimeException("Parent not found with email: " + email));
+    }
     // Update parent
     public Parent updateParent(UUID parentUUID, Parent updatedParent) {
         Parent existingParent = getParentById(parentUUID);
 
         existingParent.setFirstName(updatedParent.getFirstName());
         existingParent.setSurname(updatedParent.getSurname());
+        existingParent.setUserAccount(updatedParent.getUserAccount());
         existingParent.setContact(updatedParent.getContact());
         existingParent.setParentLocation(updatedParent.getParentLocation());
-        // Optional: update children list if needed
         existingParent.setChildren(updatedParent.getChildren());
 
         return parentRepository.save(existingParent);

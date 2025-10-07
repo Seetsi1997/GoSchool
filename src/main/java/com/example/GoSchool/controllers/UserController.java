@@ -188,7 +188,7 @@ public  class UserController {
         userRepository.save(user);
 
         String resetLink = "http://localhost:4200/reset-password?token=" + token;
-        emailService.sendVerificationEmail(user.getEmail(), resetLink);
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
 
         return ResponseEntity.ok(Map.of("message", "If the email exists, a reset link will be sent"));
     }

@@ -15,16 +15,16 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendVerificationEmail(String to, String link) {
+    public void sendPasswordResetEmail(String to, String link) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
-        message.setSubject("Verify your email");
+        message.setSubject("Reset your password");
         message.setText(
                 "Hi,\n\n" +
                         "Thank you for registering with us!\n\n" +
-                        "Please click the link below to verify your email address:\n" +
+                        "Please click the link below to reset your password:\n" +
                         link + "\n\n" +
-                        "If you didn't request this, please ignore this email.\n\n" +
+                        "If you didn't request this, please ignore this email we send you.\n\n" +
                         "Best regards,\nGoSchool App"
         );
         mailSender.send(message);

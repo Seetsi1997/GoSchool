@@ -67,7 +67,7 @@ public class CorsConfig {
 
     @Configuration
     @EnableWebSecurity
-    public class SecurityConfig {
+    public static class SecurityConfig {
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
@@ -75,11 +75,11 @@ public class CorsConfig {
                     .cors(Customizer.withDefaults())
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
-                            // Public endpoints
+                            // Public endpoints - specific patterns first
                             .requestMatchers(
                                     "/uploads/**",
                                     "/auth/api/admins",
-                                    "/auth/api/parents/register",
+                                    "/auth/api/parents/register",  // registration is public
                                     "/auth/api/users/register",
                                     "/auth/api/users/login",
                                     "/auth/api/users/logout",
@@ -87,12 +87,19 @@ public class CorsConfig {
                                     "/auth/api/users/reset-password",
                                     "/auth/api/drivers/register"
                             ).permitAll()
-                            // Authenticated endpoints
+
+                            // Parent endpoints - specific to general
+                            //.requestMatchers("/auth/api/parents/profile").hasRole("PARENT")
+                            .requestMatchers("/auth/api/parents/profile").authenticated()
+                            .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
+
+                            // Other authenticated endpoints
                             .requestMatchers("/auth/profile").authenticated()
+
                             // Role-based endpoints
                             .requestMatchers("/ADMIN/**").hasRole("ADMIN")
                             .requestMatchers("/DRIVER/**").hasAnyRole("DRIVER", "ADMIN")
-                            //.requestMatchers("/auth/proof/**").hasAnyAuthority("ROLE_DRIVER", "ROLE_PARENT")
+
                             // Everything else requires authentication
                             .anyRequest().authenticated()
                     )
@@ -103,7 +110,6 @@ public class CorsConfig {
             return http.build();
         }
     }
-
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
