@@ -1,5 +1,6 @@
 package com.example.GoSchool.service;
 
+import com.example.GoSchool.dtos.LocationDTO;
 import com.example.GoSchool.dtos.ParentDTO;
 import com.example.GoSchool.model.Location;
 import com.example.GoSchool.model.Parent;
@@ -102,19 +103,76 @@ public class ParentService {
         return parentRepository.findByUserAccountEmail(email)
                 .orElseThrow(() -> new RuntimeException("Parent not found with email: " + email));
     }
+
+    public ParentDTO getParentToDTO(Parent parent) {
+        ParentDTO dto = new ParentDTO();
+        dto.setParentUUID(parent.getParentUUID());
+        dto.setFirstName(parent.getFirstName());
+        dto.setSurname(parent.getSurname());
+        dto.setContact(parent.getContact());
+
+        // Map location info if present
+        if (parent.getParentLocation() != null) {
+            dto.setLocationUUID(parent.getParentLocation().getLocationUUID());
+            dto.setCity(parent.getParentLocation().getCity());
+            dto.setAddress(parent.getParentLocation().getAddress());
+            dto.setPostalCode(parent.getParentLocation().getPostalCode());
+            dto.setProvince(parent.getParentLocation().getProvince());
+        }
+
+        // Map user info (email, userId, role) from nested UserAccount
+        if (parent.getUserAccount() != null) {
+            dto.setEmail(parent.getUserAccount().getEmail());
+            dto.setUserId(parent.getUserAccount().getUuid());
+            dto.setRole(parent.getUserAccount().getRole());
+        }
+
+        // Map children if needed
+    /*dto.setStudentDTOList(
+        parent.getChildren().stream()
+              .map(this::toStudentDTO)
+              .collect(Collectors.toList())
+    );*/
+
+        return dto;
+    }
+
+
     // Update parent
-    public Parent updateParent(UUID parentUUID, Parent updatedParent) {
+    public Parent updateParent(UUID parentUUID, ParentDTO updatedParentDTO) {
         Parent existingParent = getParentById(parentUUID);
 
-        existingParent.setFirstName(updatedParent.getFirstName());
-        existingParent.setSurname(updatedParent.getSurname());
-        existingParent.setUserAccount(updatedParent.getUserAccount());
-        existingParent.setContact(updatedParent.getContact());
-        existingParent.setParentLocation(updatedParent.getParentLocation());
-        existingParent.setChildren(updatedParent.getChildren());
+        // Update basic fields
+        existingParent.setFirstName(updatedParentDTO.getFirstName());
+        existingParent.setSurname(updatedParentDTO.getSurname());
+        existingParent.setContact(updatedParentDTO.getContact());
+
+        // Keep existing user account
+        Users userAccount = existingParent.getUserAccount();
+        existingParent.setUserAccount(userAccount);
+
+        // Update location
+        Location location = existingParent.getParentLocation();
+
+        if (location != null) {
+            location.setCity(updatedParentDTO.getCity());
+            location.setAddress(updatedParentDTO.getAddress());
+            location.setPostalCode(updatedParentDTO.getPostalCode());
+            location.setProvince(updatedParentDTO.getProvince());
+        } else {
+            // Create new Location if missing
+            Location newLocation = new Location();
+            newLocation.setCity(updatedParentDTO.getCity());
+            newLocation.setAddress(updatedParentDTO.getAddress());
+            newLocation.setPostalCode(updatedParentDTO.getPostalCode());
+            newLocation.setProvince(updatedParentDTO.getProvince());
+            existingParent.setParentLocation(newLocation);
+        }
 
         return parentRepository.save(existingParent);
     }
+
+
 
     // Delete parent
     public void deleteParent(UUID parentUUID) {

@@ -49,38 +49,39 @@ public class ParentController {
 
     // Get current logged-in parent (you'll need to implement authentication)
     // Get current parent
-    @GetMapping("/me")
-    public ResponseEntity<Parent> getCurrentParentProfile(Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            Parent parent = parentService.getParentByEmail(email);
-            return ResponseEntity.ok(parent);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    // Get current parent profile
+    @GetMapping("/profile")
+    public ResponseEntity<ParentDTO> getCurrentParentProfile(Authentication authentication) {
+        String email = authentication.getName();
+
+        // Fetch parent entity by email
+        Parent parent = parentService.getParentByEmail(email);
+
+        // Convert to DTO
+        ParentDTO parentDTO = parentService.getParentToDTO(parent);
+
+        return ResponseEntity.ok(parentDTO);
     }
 
-    // Update current parent
-    @PutMapping("/me")
-    public ResponseEntity<Parent> updateCurrentParentProfile(
+    // Update current parent profile
+    @PutMapping("/profile")
+    public ResponseEntity<ParentDTO> updateCurrentParentProfile(
             Authentication authentication,
-            @RequestBody Parent updatedParent) {
-        try {
-            System.out.println("Authentication: " + authentication);
-            System.out.println("Principal: " + authentication.getPrincipal());
-            System.out.println("Authorities: " + authentication.getAuthorities());
-            System.out.println("Name: " + authentication.getName());
+            @RequestBody ParentDTO updatedParentDTO) {
 
-            String email = authentication.getName();
-            Parent existingParent = parentService.getParentByEmail(email);
+        String email = authentication.getName();
 
+        // Fetch parent entity
+        Parent existingParent = parentService.getParentByEmail(email);
 
-            Parent savedParent = parentService.updateParent(existingParent.getParentUUID(), updatedParent);
-            return ResponseEntity.ok(savedParent);
+        // Update parent with DTO
+        Parent updatedParent = parentService.updateParent(existingParent.getParentUUID(), updatedParentDTO);
 
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        // Convert updated entity to DTO to return
+        ParentDTO updatedParentDTOResponse = parentService.getParentToDTO(updatedParent);
+
+        return ResponseEntity.ok(updatedParentDTOResponse);
     }
+
 
 }

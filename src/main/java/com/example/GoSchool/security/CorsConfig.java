@@ -90,9 +90,11 @@ public class CorsConfig {
 
                             // Parent endpoints - specific to general
                             //.requestMatchers("/auth/api/parents/profile").hasRole("PARENT")
+                            //.requestMatchers("/auth/api/parents/profile").authenticated()
+                            //.requestMatchers("/auth/api/parents/**").hasRole("PARENT")
+                            // Specific before general
                             .requestMatchers("/auth/api/parents/profile").authenticated()
                             .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
-
                             // Other authenticated endpoints
                             .requestMatchers("/auth/profile").authenticated()
 

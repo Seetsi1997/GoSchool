@@ -1,6 +1,7 @@
 package com.example.GoSchool.dtos;
 
 import com.example.GoSchool.constant.Province;
+import com.example.GoSchool.constant.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,4 +27,5 @@ public class ParentDTO {
     private String email;
     private List<StudentDTO> studentDTOList;
     private String password;
+    private Role role;
 }
