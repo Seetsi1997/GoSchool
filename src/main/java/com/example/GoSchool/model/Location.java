@@ -24,10 +24,13 @@ public class Location {
     @Column(name = "location_uuid", updatable = false, nullable = false)
     private UUID locationUUID;
 
+    @Column(name = "suburb", nullable = false)
+    private String suburb;
+
     @Column(name = "city", nullable = false)
     private String city;
 
-    @Column(name = "address", nullable = false)
+    @Column(name = "street_address", nullable = false)
     private String address;
 
     @Column(name = "postal_code", nullable = false)

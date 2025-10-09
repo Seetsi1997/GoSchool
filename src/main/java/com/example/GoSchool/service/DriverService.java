@@ -75,6 +75,7 @@ public class DriverService {
             newLoc.setProvince(driverDTO.getProvince());
             newLoc.setAddress(driverDTO.getAddress());
             newLoc.setPostalCode(driverDTO.getPostalCode());
+            newLoc.setSuburb(driverDTO.getSuburb());
             location = locationRepository.save(newLoc);
         }
 

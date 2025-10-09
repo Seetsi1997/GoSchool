@@ -21,6 +21,7 @@ public class DriverDTO {
     private Province province;
     private String address;
     private String postalCode;
+    private String suburb;
     private int totalNumberOfStudents;
     private List<StudentDTO> assignedStudents;
     private UUID userId;

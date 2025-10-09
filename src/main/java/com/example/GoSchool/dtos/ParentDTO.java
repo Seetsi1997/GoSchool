@@ -22,6 +22,7 @@ public class ParentDTO {
     private String city;
     private String address;
     private String postalCode;
+    private String suburb;
     private Province province;
     private UUID userId;
     private String email;

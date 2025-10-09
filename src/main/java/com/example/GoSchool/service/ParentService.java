@@ -61,6 +61,7 @@ public class ParentService {
             newLoc.setProvince(parentDTO.getProvince());
             newLoc.setAddress(parentDTO.getAddress());
             newLoc.setPostalCode(parentDTO.getPostalCode());
+            newLoc.setSuburb(parentDTO.getSuburb());
             location = locationRepository.save(newLoc);
         }
 
