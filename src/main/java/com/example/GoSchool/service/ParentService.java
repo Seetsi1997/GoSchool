@@ -50,6 +50,7 @@ public class ParentService {
         } else {
             // New location: validate fields
             if (parentDTO.getCity() == null || parentDTO.getCity().isBlank()
+                    || parentDTO.getSuburb() == null  ||  parentDTO.getSuburb().isBlank()
                     || parentDTO.getProvince() == null
                     || parentDTO.getAddress() == null || parentDTO.getAddress().isBlank()
                     || parentDTO.getPostalCode() == null || parentDTO.getPostalCode().isBlank()) {
@@ -119,6 +120,7 @@ public class ParentService {
             dto.setAddress(parent.getParentLocation().getAddress());
             dto.setPostalCode(parent.getParentLocation().getPostalCode());
             dto.setProvince(parent.getParentLocation().getProvince());
+            dto.setSuburb(parent.getParentLocation().getSuburb());
         }
 
         // Map user info (email, userId, role) from nested UserAccount
@@ -160,6 +162,7 @@ public class ParentService {
             location.setAddress(updatedParentDTO.getAddress());
             location.setPostalCode(updatedParentDTO.getPostalCode());
             location.setProvince(updatedParentDTO.getProvince());
+            location.setSuburb(updatedParentDTO.getSuburb());
         } else {
             // Create new Location if missing
             Location newLocation = new Location();
@@ -167,6 +170,7 @@ public class ParentService {
             newLocation.setAddress(updatedParentDTO.getAddress());
             newLocation.setPostalCode(updatedParentDTO.getPostalCode());
             newLocation.setProvince(updatedParentDTO.getProvince());
+            newLocation.setSuburb(updatedParentDTO.getSuburb());
             existingParent.setParentLocation(newLocation);
         }
 
