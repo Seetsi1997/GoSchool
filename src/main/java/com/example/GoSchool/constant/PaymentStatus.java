@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public enum PaymentStatus {
     PAID,
     UNPAID,
-    PENDING_VERIFICATION;
+    PENDING;
 
     @JsonCreator
     public static PaymentStatus fromString(String key) {

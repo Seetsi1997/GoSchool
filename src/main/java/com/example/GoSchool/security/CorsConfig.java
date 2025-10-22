@@ -85,7 +85,8 @@ public class CorsConfig {
                                     "/auth/api/users/logout",
                                     "/auth/api/users/forgot-password",
                                     "/auth/api/users/reset-password",
-                                    "/auth/api/drivers/register"
+                                    "/auth/api/drivers/register",
+                                    "/auth/api/parents/{parentId}/students"
                             ).permitAll()
 
                             // Parent endpoints - specific to general
@@ -93,6 +94,7 @@ public class CorsConfig {
                             //.requestMatchers("/auth/api/parents/profile").authenticated()
                             //.requestMatchers("/auth/api/parents/**").hasRole("PARENT")
                             // Specific before general
+                            .requestMatchers("/auth/api/parents/me/students").authenticated()
                             .requestMatchers("/auth/api/parents/profile").authenticated()
                             .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
                             // Other authenticated endpoints

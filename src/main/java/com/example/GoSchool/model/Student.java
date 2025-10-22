@@ -2,6 +2,7 @@ package com.example.GoSchool.model;
 
 import com.example.GoSchool.constant.LearnersGrade;
 import com.example.GoSchool.constant.PaymentStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,27 +25,26 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID studentUUID;
 
-    @Column(name = "student_first_name", nullable = false)
+    @Column(nullable = false)
     private String studentFirstName;
 
-    @Column(name = "student_surname", nullable = false)
+    @Column(nullable = false)
     private String studentSurname;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "learners_grade_id", nullable = false)
     private LearnersGrade studentGrade;
 
-    @Column(name = "monthly_payment_amount", nullable = false)
+    @Column(nullable = false)
+    private String schoolName;
+
+    @Column(nullable = false)
     private double monthlyPaymentAmount;
 
-    // Each student belongs to ONE parent
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id", nullable = false)
     private Parent parent;
 
-    // If PaymentStatus is ENUM
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", nullable = false)
     private PaymentStatus paymentStatus;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -52,5 +52,6 @@ public class Student {
 
     @ManyToOne
     @JoinColumn(name = "driver_id")
+    @JsonBackReference
     private Driver driver;
 }
