@@ -24,7 +24,7 @@ public class JwtUtil{
     @Value("${jwt.expirationMs}")
     private  long expirationMs;
 
-    public String generateToken(String email, Collection<? extends GrantedAuthority> authorities) {
+   /* public String generateToken(String email, Collection<? extends GrantedAuthority> authorities) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
 
         return Jwts.builder()
@@ -36,6 +36,29 @@ public class JwtUtil{
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();
+    }*/
+
+    public String generateToken(String email, Collection<? extends GrantedAuthority> authorities) {
+        try {
+            System.out.println("DEBUG: Starting token generation for: " + email);
+            SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+
+            String token = Jwts.builder()
+                    .setSubject(email)
+                    .claim("roles", authorities.stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .collect(Collectors.toList()))
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                    .signWith(key)
+                    .compact();
+
+            System.out.println("DEBUG: Token generated successfully");
+            return token;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Error in token generation: " + e.getMessage());
+            throw e;
+        }
     }
 
     public String extractUsername(String token) {

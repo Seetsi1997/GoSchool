@@ -120,21 +120,23 @@ public  class UserController {
         String email = loginRequest.getEmail().toLowerCase();
         String rawPassword = loginRequest.getPassword();
 
-        System.out.println("Attempting login for email: " + email);
-
         try {
-            // Check if user exists
+            // Check if user exists first
             Optional<Users> optionalUser = userRepository.findByEmailIgnoreCase(email);
             if (optionalUser.isEmpty()) {
-                System.out.println("User not found with email: " + email);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "User not found"));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Wrong email or password"));
             }
 
             Users user = optionalUser.get();
-            System.out.println("User found: " + user.getEmail() + ", stored password: " + user.getPassword());
 
-            // Authenticate
+            // Check password immediately before authentication
+            if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Wrong password"));
+            }
+
+            // If password matches, proceed with authentication
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, rawPassword)
             );
@@ -144,8 +146,6 @@ public  class UserController {
             // Generate JWT token
             String token = jwtUtil.generateToken(authentication.getName(), authentication.getAuthorities());
 
-            System.out.println("Login successful for: " + email);
-
             return ResponseEntity.ok(new UserLoginResponse(
                     token,
                     user.getRole().name(),
@@ -154,21 +154,14 @@ public  class UserController {
                     user.getUuid()
             ));
 
-        } catch (BadCredentialsException e) {
-            System.out.println("Bad credentials for email: " + email);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid password"));
         } catch (AuthenticationException e) {
-            System.out.println("Authentication failed for email: " + email + " | " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Authentication failed"));
+                    .body(Map.of("error", "Wrong password"));
         } catch (Exception e) {
-            System.out.println("Unexpected error for email: " + email + " | " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+                    .body(Map.of("error", "An unexpected error occurred"));
         }
     }
-
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO request) {

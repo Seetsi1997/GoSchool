@@ -49,6 +49,14 @@ public class Users {
     @Column(name = "verified")
     private Boolean verified = false;
 
+    @OneToOne(mappedBy = "userAccount", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Parent parent;
+
+    @OneToOne(mappedBy = "userAccount", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Driver driver;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
