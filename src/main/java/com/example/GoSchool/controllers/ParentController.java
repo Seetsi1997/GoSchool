@@ -143,9 +143,7 @@ public class ParentController {
         }
     }
 
-    // Get current logged-in parent (you'll need to implement authentication)
-    // Get current parent
-    // Get current parent profile
+    // Get current logged-in parent to get parent profile
     @GetMapping("/profile")
     public ResponseEntity<ParentDTO> getCurrentParentProfile(Authentication authentication) {
         String email = authentication.getName();

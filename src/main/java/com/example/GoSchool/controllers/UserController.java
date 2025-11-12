@@ -239,5 +239,98 @@ public  class UserController {
         return null;
     }
 
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO,
+                                            HttpServletRequest request) {
+        try {
+            // Extract token from request
+            String token = extractTokenFromRequest(request);
+            /*System.out.println("=== CHANGE PASSWORD DEBUG ===");
+            System.out.println("Authorization Header: " + request.getHeader("Authorization"));
+            System.out.println("Extracted Token: " + (token != null ? "Token exists, length: " + token.length() : "NULL"));
 
+            if (token == null) {
+                System.out.println("DEBUG: No token found in request");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "No authentication token found"));
+            }*/
+
+            // Validate token
+            boolean isValidToken = jwtUtil.validateToken(token);
+            System.out.println("DEBUG: Token validation result: " + isValidToken);
+
+            if (!isValidToken) {
+                System.out.println("DEBUG: Token validation failed");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid or expired token"));
+            }
+
+            // Extract user email from token
+            String userEmail = jwtUtil.extractUsername(token);
+            //System.out.println("DEBUG: Extracted user email: " + userEmail);
+
+            // Validate required fields
+            if (changePasswordDTO.getCurrentPassword() == null || changePasswordDTO.getCurrentPassword().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Current password is required"));
+            }
+
+            if (changePasswordDTO.getNewPassword() == null || changePasswordDTO.getNewPassword().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "New password is required"));
+            }
+
+            if (changePasswordDTO.getConfirmPassword() == null || changePasswordDTO.getConfirmPassword().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Confirm password is required"));
+            }
+
+            // Check if new password and confirm password match
+            if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "New password and confirm password do not match"));
+            }
+
+            // Check if new password is different from current password
+            if (changePasswordDTO.getNewPassword().equals(changePasswordDTO.getCurrentPassword())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "New password must be different from current password"));
+            }
+
+            // Optional: Add password strength validation
+            if (changePasswordDTO.getNewPassword().length() < 6) {
+                return ResponseEntity.badRequest().body(Map.of("error", "New password must be at least 6 characters long"));
+            }
+
+            // Find user
+            Optional<Users> userOptional = userRepository.findByEmailIgnoreCase(userEmail);
+            if (userOptional.isEmpty()) {
+               // System.out.println("DEBUG: User not found for email: " + userEmail);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "User not found"));
+            }
+
+            Users user = userOptional.get();
+            //System.out.println("DEBUG: User found: " + user.getEmail());
+
+            // Verify current password
+            boolean passwordMatches = passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword());
+            //System.out.println("DEBUG: Current password matches: " + passwordMatches);
+
+            if (!passwordMatches) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Current password is incorrect"));
+            }
+
+            // Update password
+            user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+            userRepository.save(user);
+
+            System.out.println("DEBUG: Password changed successfully for user: " + userEmail);
+            System.out.println("=== END DEBUG ===");
+
+            return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+
+        } catch (Exception e) {
+            System.out.println("ERROR in changePassword: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An error occurred while changing password: " + e.getMessage()));
+        }
+    }
 }

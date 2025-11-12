@@ -79,12 +79,13 @@ public class CorsConfig {
                             .requestMatchers(
                                     "/uploads/**",
                                     "/auth/api/admins",
-                                    "/auth/api/parents/register",  // registration is public
+                                    "/auth/api/parents/register",
                                     "/auth/api/users/register",
                                     "/auth/api/users/login",
                                     "/auth/api/users/logout",
                                     "/auth/api/users/forgot-password",
                                     "/auth/api/users/reset-password",
+                                    "/auth/api/users/change-password",
                                     "/auth/api/drivers/register",
                                     "/auth/api/parents/{parentId}/students"
                             ).permitAll()
