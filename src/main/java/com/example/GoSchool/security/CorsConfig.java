@@ -87,7 +87,8 @@ public class CorsConfig {
                                     "/auth/api/users/reset-password",
                                     "/auth/api/users/change-password",
                                     "/auth/api/drivers/register",
-                                    "/auth/api/parents/{parentId}/students"
+                                    "/auth/api/parents/{parentId}/students",
+                                    "/auth/api/payments/student/{studentId}"
                             ).permitAll()
 
                             // Parent endpoints - specific to general
@@ -98,6 +99,11 @@ public class CorsConfig {
                             .requestMatchers("/auth/api/parents/me/students").authenticated()
                             .requestMatchers("/auth/api/parents/profile").authenticated()
                             .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
+
+                            // Payment endpoints - require authentication
+                            .requestMatchers("/auth/api/payments/upload").hasRole("PARENT")
+                            .requestMatchers("/auth/api/payments/**").authenticated()
+
                             // Other authenticated endpoints
                             .requestMatchers("/auth/profile").authenticated()
 

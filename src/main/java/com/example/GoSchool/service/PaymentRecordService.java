@@ -2,6 +2,7 @@ package com.example.GoSchool.service;
 
 import com.example.GoSchool.constant.PaymentStatus;
 import com.example.GoSchool.dtos.PaymentRecordDTO;
+import com.example.GoSchool.dtos.PaymentUploadDTO;
 import com.example.GoSchool.model.PaymentRecord;
 import com.example.GoSchool.model.Student;
 import com.example.GoSchool.model.Users;
@@ -20,27 +21,63 @@ public class PaymentRecordService {
 
     private final PaymentRecordRepository paymentRecordRepository;
     private final StudentRepository studentRepository;
+    private final FileStorageService fileStorageService;
 
     @Autowired
     public PaymentRecordService(PaymentRecordRepository paymentRecordRepository,
-                                StudentRepository studentRepository) {
+                                StudentRepository studentRepository,
+                                FileStorageService fileStorageService) {
         this.paymentRecordRepository = paymentRecordRepository;
         this.studentRepository = studentRepository;
+        this.fileStorageService = fileStorageService;
     }
 
-    // Create a new payment record for a student
-    public PaymentRecord createPayment(UUID studentId, PaymentRecord paymentRecord) {
+
+    // Create payment with file upload
+    public PaymentRecord createPaymentWithFile(UUID studentId, PaymentUploadDTO paymentUploadDTO) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found with id: " + studentId));
 
-        paymentRecord.setStudent(student); // set the student reference
-        paymentRecord.setPaymentDate(LocalDate.now()); // set payment date to today
-
-        // Optional: set default status if not set
-        if (paymentRecord.getStatus() == null) {
-            paymentRecord.setStatus(PaymentStatus.UNPAID);
+        // Validate file
+        if (paymentUploadDTO.getProofOfPaymentFile().isEmpty()) {
+            throw new RuntimeException("Proof of payment file is required");
         }
 
+        // Store the file and get URL
+        String fileUrl = fileStorageService.storeFile(paymentUploadDTO.getProofOfPaymentFile(), "payments");
+
+        // Create payment record
+        PaymentRecord paymentRecord = PaymentRecord.builder()
+                .student(student)
+                .amount(paymentUploadDTO.getAmount())
+                .paymentDate(LocalDate.now())
+                .method(paymentUploadDTO.getMethod())
+                .status(PaymentStatus.PENDING) // Set to pending for admin verification
+                .proofOfPaymentUrl(fileUrl)
+                .verifiedByAdmin(null) // Not verified yet
+                .build();
+
+        return paymentRecordRepository.save(paymentRecord);
+    }
+
+    // Get all pending payments for admin verification
+    public List<PaymentRecord> getPendingPayments() {
+        return paymentRecordRepository.findByStatus(PaymentStatus.PENDING);
+    }
+
+    // Verify payment by admin
+    public PaymentRecord verifyPayment(UUID paymentRecordId, Users admin) {
+        PaymentRecord paymentRecord = getPaymentById(paymentRecordId);
+        paymentRecord.setStatus(PaymentStatus.PAID);
+        paymentRecord.setVerifiedByAdmin(admin);
+        return paymentRecordRepository.save(paymentRecord);
+    }
+
+    // Reject payment by admin
+    public PaymentRecord rejectPayment(UUID paymentRecordId, Users admin) {
+        PaymentRecord paymentRecord = getPaymentById(paymentRecordId);
+        paymentRecord.setStatus(PaymentStatus.UNPAID);
+        paymentRecord.setVerifiedByAdmin(admin);
         return paymentRecordRepository.save(paymentRecord);
     }
 
@@ -87,13 +124,13 @@ public class PaymentRecordService {
     }
 
     // Optional: verify a payment by admin
-    public PaymentRecord verifyPayment(UUID paymentRecordId, Users admin) {
+   /* public PaymentRecord verifyPayment(UUID paymentRecordId, Users admin) {
         PaymentRecord paymentRecord = getPaymentById(paymentRecordId);
 
         paymentRecord.setStatus(PaymentStatus.PAID);
         paymentRecord.setVerifiedByAdmin(admin);
 
         return paymentRecordRepository.save(paymentRecord);
-    }
+    }*/
 }
 

@@ -45,7 +45,7 @@ public class PaymentRecord {
     private String proofOfPaymentUrl;
 
     @ManyToOne
-    @JoinColumn(name = "verified_payment_by_admin_id", nullable = false)
-    private  Users verifiedByAdmin;
+    @JoinColumn(name = "verified_payment_by_admin_id", nullable = true)
+    private Users verifiedByAdmin;
 }
 
