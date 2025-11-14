@@ -42,6 +42,7 @@ public class StudentDTO {
         this.monthlyPaymentAmount = student.getMonthlyPaymentAmount();
         this.paymentStatus = student.getPaymentStatus();
         this.studentGrade = student.getStudentGrade();
+        this.parentUUID = student.getParent().getParentUUID();
         this.parentName = student.getParent() != null
                 ? student.getParent().getFirstName()
                 : null;

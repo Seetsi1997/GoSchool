@@ -243,7 +243,7 @@ public class ParentController {
 
     @PutMapping("/{parentUUID}/students/{studentId}")
     public ResponseEntity<?> updateStudent(
-            @PathVariable UUID parentId,
+            @PathVariable UUID parentUUID,
             @PathVariable UUID studentId,
             @Valid @RequestBody StudentDTO studentUpdateDTO) {
 
@@ -252,18 +252,22 @@ public class ParentController {
             Student student = studentRepository.findById(studentId)
                     .orElseThrow(() -> new RuntimeException("Student not found"));
 
-            // Check if student belongs to parent
-            if (!isStudentBelongsToParent(student, parentId)) {
+            // Check parent ownership
+            if (!isStudentBelongsToParent(student, parentUUID)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Student does not belong to this parent");
             }
 
-            // Update student
+            // Update fields
             student.setSchoolName(studentUpdateDTO.getSchoolName());
             student.setStudentGrade(studentUpdateDTO.getStudentGrade());
 
             Student updatedStudent = studentRepository.save(student);
-            return ResponseEntity.ok(updatedStudent);
+
+            // Convert to DTO (fixes Angular JSON parsing error)
+            StudentDTO responseDTO = convertToDTO(updatedStudent);
+
+            return ResponseEntity.ok(responseDTO);
 
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -271,10 +275,38 @@ public class ParentController {
     }
 
     // Helper method to check ownership
-    private boolean isStudentBelongsToParent(Student student, UUID parentId) {
-        // Check if student has a parent and if the parent ID matches
+    private boolean isStudentBelongsToParent(Student student, UUID parentUUID) {
         return student.getParent() != null &&
-                student.getParent().getParentUUID().equals(parentId);
+                student.getParent().getParentUUID().equals(parentUUID);
+    }
+
+    // Converts Student → StudentDTO (matches Angular fields)
+    private StudentDTO convertToDTO(Student student) {
+        StudentDTO dto = new StudentDTO();
+
+        dto.setStudentUUID(student.getStudentUUID());
+        dto.setStudentFirstName(student.getStudentFirstName());
+        dto.setStudentSurname(student.getStudentSurname());
+        dto.setStudentGrade(student.getStudentGrade());
+        dto.setSchoolName(student.getSchoolName());
+        dto.setPaymentStatus(student.getPaymentStatus());
+        dto.setMonthlyPaymentAmount(student.getMonthlyPaymentAmount());
+
+        if (student.getParent() != null) {
+            dto.setParentUUID(student.getParent().getParentUUID());
+            dto.setParentName(student.getParent().getFirstName());
+            dto.setParentEmail(student.getParent().getUserAccount().getEmail());
+            dto.setParentPhoneNumber(student.getParent().getContact());
+            dto.setParentAddress(student.getParent().getParentLocation().getAddress());
+            dto.setParentCity(student.getParent().getParentLocation().getCity());
+            dto.setParentProvince(student.getParent().getParentLocation().getProvince());
+            dto.setParentPostalCode(student.getParent().getParentLocation().getPostalCode());
+        }
+
+        // Only include payment records if you need them
+       // dto.setPaymentRecordDTO(student.getPaymentRecords());
+
+        return dto;
     }
 
 }
