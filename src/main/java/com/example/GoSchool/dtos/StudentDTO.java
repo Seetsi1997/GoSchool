@@ -24,6 +24,7 @@ public class StudentDTO {
     private double monthlyPaymentAmount;
     private PaymentStatus paymentStatus;
     private LearnersGrade studentGrade;
+    private UUID parentUUID;
     private String parentName;
     private String parentPhoneNumber;
     private String parentEmail;

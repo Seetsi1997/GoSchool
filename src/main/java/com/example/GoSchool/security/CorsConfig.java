@@ -88,7 +88,8 @@ public class CorsConfig {
                                     "/auth/api/users/change-password",
                                     "/auth/api/drivers/register",
                                     "/auth/api/parents/{parentId}/students",
-                                    "/auth/api/payments/student/{studentId}"
+                                    "/auth/api/payments/student/{studentId}",
+                                    "/auth/api/parents/{parentUUID}/students/{studentId}"
                             ).permitAll()
 
                             // Parent endpoints - specific to general

@@ -6,6 +6,7 @@ import com.example.GoSchool.model.*;
 import com.example.GoSchool.repository.DriverRepository;
 import com.example.GoSchool.repository.LocationRepository;
 import com.example.GoSchool.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,26 +42,10 @@ public class DriverService {
 
             return driverRepository.save(driver);
     }
-    public void createDriver(DriverDTO driverDTO, UUID userId) {
+    public void createDriver(@Valid DriverDTO driverDTO, UUID userId) {
         // Fetch user
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        // Validate required driver fields
-        if (driverDTO.getFirstName() == null || driverDTO.getFirstName().isBlank()) {
-            throw new IllegalArgumentException("Driver name must be provided");
-        }
-        if (driverDTO.getSurname() == null || driverDTO.getSurname().isBlank()) {
-            throw new IllegalArgumentException("Driver surname must be provided");
-        }
-        if (driverDTO.getContact() == null || driverDTO.getContact().isBlank()) {
-            throw new IllegalArgumentException("Driver contact must be provided");
-        }
-        if (driverDTO.getCity() == null || driverDTO.getCity().isBlank()
-                || driverDTO.getProvince() == null
-                || driverDTO.getAddress() == null || driverDTO.getAddress().isBlank()) {
-            throw new IllegalArgumentException("Driver location must be provided");
-        }
 
         // Handle location safely
         Location location;
@@ -79,7 +64,7 @@ public class DriverService {
             location = locationRepository.save(newLoc);
         }
 
-        // Create driver
+        // Create driver (validation is now handled by @Valid)
         Driver driver = new Driver();
         driver.setDriverUUID(driverDTO.getDriverUUID());
         driver.setDriverName(driverDTO.getFirstName());
@@ -112,7 +97,6 @@ public class DriverService {
 
         driverRepository.save(driver);
     }
-
 
     // Get driver by UUID
     public Driver getDriverById(UUID driverUUID) {

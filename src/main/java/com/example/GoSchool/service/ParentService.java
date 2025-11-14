@@ -10,6 +10,7 @@ import com.example.GoSchool.repository.LocationRepository;
 import com.example.GoSchool.repository.ParentRepository;
 import com.example.GoSchool.repository.StudentRepository;
 import com.example.GoSchool.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class ParentService {
         this.locationRepository = locationRepository;
     }
 
-    public void createParent(ParentDTO parentDTO, UUID userId) {
+    public void createParent(@Valid ParentDTO parentDTO, UUID userId) {
         // Fetch user
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
@@ -50,7 +51,7 @@ public class ParentService {
         } else {
             // New location: validate fields
             if (parentDTO.getCity() == null || parentDTO.getCity().isBlank()
-                    || parentDTO.getSuburb() == null  ||  parentDTO.getSuburb().isBlank()
+                    || parentDTO.getSuburb() == null || parentDTO.getSuburb().isBlank()
                     || parentDTO.getProvince() == null
                     || parentDTO.getAddress() == null || parentDTO.getAddress().isBlank()
                     || parentDTO.getPostalCode() == null || parentDTO.getPostalCode().isBlank()) {
@@ -66,18 +67,7 @@ public class ParentService {
             location = locationRepository.save(newLoc);
         }
 
-        // Validate required parent fields
-        if (parentDTO.getContact() == null || parentDTO.getContact().isBlank()) {
-            throw new IllegalArgumentException("Parent contact must be provided");
-        }
-        if (parentDTO.getFirstName() == null || parentDTO.getFirstName().isBlank()) {
-            throw new IllegalArgumentException("Parent first name must be provided");
-        }
-        if (parentDTO.getSurname() == null || parentDTO.getSurname().isBlank()) {
-            throw new IllegalArgumentException("Parent surname must be provided");
-        }
-
-        // Create parent entity
+        // Create parent entity (validation is now handled by @Valid)
         Parent parent = new Parent();
         parent.setParentUUID(parentDTO.getParentUUID());
         parent.setFirstName(parentDTO.getFirstName());
@@ -88,7 +78,6 @@ public class ParentService {
 
         parentRepository.save(parent);
     }
-
     // Get parent by UUID
     public Parent getParentById(UUID parentUUID) {
         return parentRepository.findById(parentUUID)

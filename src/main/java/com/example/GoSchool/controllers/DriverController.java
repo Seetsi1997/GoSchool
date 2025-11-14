@@ -7,6 +7,7 @@ import com.example.GoSchool.model.Users;
 import com.example.GoSchool.service.AuthService;
 import com.example.GoSchool.service.DriverService;
 import com.example.GoSchool.service.ParentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +29,7 @@ public class DriverController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerParent(@RequestBody DriverDTO driverDTO) {
+    public ResponseEntity<?> registerParent(@Valid @RequestBody DriverDTO driverDTO) {
         try {
             Users savedUser = authService.registerBaseUser(
                     driverDTO.getEmail(),

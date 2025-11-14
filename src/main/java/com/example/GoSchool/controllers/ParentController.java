@@ -12,6 +12,7 @@ import com.example.GoSchool.repository.StudentRepository;
 import com.example.GoSchool.service.AuthService;
 import com.example.GoSchool.service.ParentService;
 import com.example.GoSchool.service.StudentService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -125,7 +126,7 @@ public class ParentController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerParent(@RequestBody ParentDTO parentDTO) {
+    public ResponseEntity<?> registerParent(@Valid @RequestBody ParentDTO parentDTO) {
         try {
             Users savedUser = authService.registerBaseUser(
                     parentDTO.getEmail(),
@@ -240,6 +241,40 @@ public class ParentController {
         }
     }
 
+    @PutMapping("/{parentUUID}/students/{studentId}")
+    public ResponseEntity<?> updateStudent(
+            @PathVariable UUID parentId,
+            @PathVariable UUID studentId,
+            @Valid @RequestBody StudentDTO studentUpdateDTO) {
 
+        try {
+            // Find student
+            Student student = studentRepository.findById(studentId)
+                    .orElseThrow(() -> new RuntimeException("Student not found"));
+
+            // Check if student belongs to parent
+            if (!isStudentBelongsToParent(student, parentId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Student does not belong to this parent");
+            }
+
+            // Update student
+            student.setSchoolName(studentUpdateDTO.getSchoolName());
+            student.setStudentGrade(studentUpdateDTO.getStudentGrade());
+
+            Student updatedStudent = studentRepository.save(student);
+            return ResponseEntity.ok(updatedStudent);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // Helper method to check ownership
+    private boolean isStudentBelongsToParent(Student student, UUID parentId) {
+        // Check if student has a parent and if the parent ID matches
+        return student.getParent() != null &&
+                student.getParent().getParentUUID().equals(parentId);
+    }
 
 }
