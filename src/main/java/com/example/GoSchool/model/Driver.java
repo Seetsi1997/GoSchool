@@ -47,6 +47,11 @@ public class Driver {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     @JsonIgnore
     private Users userAccount;
+
+    @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<DriverRouteDetails> routeDetails = new ArrayList<>();
+
 }
 
 

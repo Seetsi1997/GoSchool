@@ -264,7 +264,7 @@ public class ParentController {
 
             Student updatedStudent = studentRepository.save(student);
 
-            // Convert to DTO (fixes Angular JSON parsing error)
+            // Convert to DTO
             StudentDTO responseDTO = convertToDTO(updatedStudent);
 
             return ResponseEntity.ok(responseDTO);

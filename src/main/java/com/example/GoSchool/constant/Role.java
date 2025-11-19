@@ -10,7 +10,9 @@ public enum Role {
     public static Role fromString(String key) {
         // Handle null input gracefully
         if (key == null) return null;
+        // Normalize input
+        String normalized = key.trim().toUpperCase().replace(" ", "_");
         // Convert input to uppercase to match enum names
-        return Role.valueOf(key.toUpperCase());
+        return Role.valueOf(normalized);
     }
 }

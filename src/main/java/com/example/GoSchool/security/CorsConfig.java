@@ -76,44 +76,49 @@ public class CorsConfig {
                     .csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth
                             // Public endpoints - specific patterns first
-                            .requestMatchers(
-                                    "/uploads/**",
-                                    "/auth/api/admins",
-                                    "/auth/api/parents/register",
-                                    "/auth/api/users/register",
-                                    "/auth/api/users/login",
-                                    "/auth/api/users/logout",
-                                    "/auth/api/users/forgot-password",
-                                    "/auth/api/users/reset-password",
-                                    "/auth/api/users/change-password",
-                                    "/auth/api/drivers/register",
-                                    "/auth/api/parents/{parentId}/students",
-                                    "/auth/api/payments/student/{studentId}",
-                                    "/auth/api/parents/{parentUUID}/students/{studentId}"
-                            ).permitAll()
+                                    // Public endpoints - specific patterns first
+                                    .requestMatchers(
+                                            "/uploads/**",
+                                            "/auth/api/admins",
+                                            "/auth/api/parents/register",
+                                            "/auth/api/users/register",
+                                            "/auth/api/users/login",
+                                            "/auth/api/users/logout",
+                                            "/auth/api/users/forgot-password",
+                                            "/auth/api/users/reset-password",
+                                            "/auth/api/users/change-password",
+                                            "/auth/api/drivers/register",
+                                            "/auth/api/parents/{parentId}/students",
+                                            "/auth/api/payments/student/{studentId}",
+                                            "/auth/api/parents/{parentUUID}/students/{studentId}",
+                                            "/auth/api/drivers/me/{userUUID}",
+                                            "/auth/api/drivers"
+                                    ).permitAll()
 
-                            // Parent endpoints - specific to general
-                            //.requestMatchers("/auth/api/parents/profile").hasRole("PARENT")
-                            //.requestMatchers("/auth/api/parents/profile").authenticated()
-                            //.requestMatchers("/auth/api/parents/**").hasRole("PARENT")
-                            // Specific before general
-                            .requestMatchers("/auth/api/parents/me/students").authenticated()
-                            .requestMatchers("/auth/api/parents/profile").authenticated()
-                            .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
+                                    // Parent endpoints - specific to general
+                                    .requestMatchers("/auth/api/parents/me/students").authenticated()
+                                    .requestMatchers("/auth/api/parents/profile").authenticated()
+                                    .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
 
-                            // Payment endpoints - require authentication
-                            .requestMatchers("/auth/api/payments/upload").hasRole("PARENT")
-                            .requestMatchers("/auth/api/payments/**").authenticated()
+                                    // Driver routes endpoints
+                                    .requestMatchers("/auth/api/drivers/*/routes").hasRole("PARENT")
+                                    .requestMatchers("/auth/api/drivers/*/routes/*").hasRole("PARENT")
+                                    .requestMatchers("/auth/api/drivers/*/routes/**").hasRole("PARENT")
+                                    .requestMatchers("/auth/api/drivers/profile").authenticated()
 
-                            // Other authenticated endpoints
-                            .requestMatchers("/auth/profile").authenticated()
+                                   // Payment endpoints - require authentication
+                                    .requestMatchers("/auth/api/payments/upload").hasRole("PARENT")
+                                    .requestMatchers("/auth/api/payments/**").authenticated()
 
-                            // Role-based endpoints
-                            .requestMatchers("/ADMIN/**").hasRole("ADMIN")
-                            .requestMatchers("/DRIVER/**").hasAnyRole("DRIVER", "ADMIN")
+                                     // Other authenticated endpoints
+                                    .requestMatchers("/auth/profile").authenticated()
 
-                            // Everything else requires authentication
-                            .anyRequest().authenticated()
+                                    // Role-based endpoints
+                                    .requestMatchers("/ADMIN/**").hasRole("ADMIN")
+                                    .requestMatchers("/DRIVER/**").hasAnyRole("DRIVER", "ADMIN")
+
+                                    // Everything else requires authentication
+                                    .anyRequest().authenticated()
                     )
                     // Skip JWT filter for public URLs
                     .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

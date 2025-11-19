@@ -1,6 +1,7 @@
 package com.example.GoSchool.repository;
 
 import com.example.GoSchool.model.Driver;
+import com.example.GoSchool.model.Parent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +14,6 @@ public interface DriverRepository extends JpaRepository<Driver, UUID> {
     List<Driver> findByDriverNameIgnoreCase(String driverName);
     List<Driver> findByDriverSurnameIgnoreCase(String driverSurname);
     Optional<Driver> findByUserAccountUuid(UUID userId);
+    Optional<Driver> findByUserAccountEmail(String email);
 
 }

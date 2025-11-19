@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,8 +34,11 @@ public class StudentDTO {
     private String parentPostalCode;
     private Province parentProvince;
     private List<PaymentRecordDTO> paymentRecordDTOS;
+    private DriverDTO driverDto;
 
     public StudentDTO(Student student) {
+        if(student == null) return;
+
         this.studentUUID = student.getStudentUUID();
         this.studentFirstName = student.getStudentFirstName();
         this.studentSurname = student.getStudentSurname();
@@ -42,28 +46,29 @@ public class StudentDTO {
         this.monthlyPaymentAmount = student.getMonthlyPaymentAmount();
         this.paymentStatus = student.getPaymentStatus();
         this.studentGrade = student.getStudentGrade();
-        this.parentUUID = student.getParent().getParentUUID();
-        this.parentName = student.getParent() != null
-                ? student.getParent().getFirstName()
-                : null;
-        this.parentAddress = student.getParent() != null
-                ? student.getParent().getParentLocation().getAddress()
-                + ", " + student.getParent().getParentLocation().getCity()
-                + ", " + student.getParent().getParentLocation().getProvince()
-                + ", " + student.getParent().getParentLocation().getPostalCode()
-                : null;
-        this.parentPhoneNumber = student.getParent() != null
-                ? student.getParent().getContact()
-                : null;
-        this.parentEmail = student.getParent() != null
-                ? student.getParent().getUserAccount().getEmail()
-                : null;
+
+        if(student.getParent() != null) {
+            this.parentUUID = student.getParent().getParentUUID();
+            this.parentName = student.getParent().getFirstName();
+            this.parentPhoneNumber = student.getParent().getContact();
+            this.parentEmail = student.getParent().getUserAccount().getEmail();
+            this.parentAddress = student.getParent().getParentLocation().getAddress() + ", " +
+                    student.getParent().getParentLocation().getCity() + ", " +
+                    student.getParent().getParentLocation().getProvince() + ", " +
+                    student.getParent().getParentLocation().getPostalCode();
+            this.parentCity = student.getParent().getParentLocation().getCity();
+            this.parentPostalCode = student.getParent().getParentLocation().getPostalCode();
+            this.parentProvince = student.getParent().getParentLocation().getProvince();
+        }
 
         this.paymentRecordDTOS = student.getPaymentRecords() != null
                 ? student.getPaymentRecords().stream()
                 .map(PaymentRecordDTO::new)
                 .collect(Collectors.toList())
-                : null;
-    }
+                : new ArrayList<>();
 
+        if(student.getDriver() != null) {
+            this.driverDto = new DriverDTO(student.getDriver(), false);
+        }
+    }
 }

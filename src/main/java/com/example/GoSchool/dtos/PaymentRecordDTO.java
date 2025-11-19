@@ -26,11 +26,14 @@ public class PaymentRecordDTO {
     public PaymentRecordDTO(PaymentRecord paymentRecord){
         this.paymentRecordId = paymentRecord.getPaymentRecordId();
         this.studentId = paymentRecord.getStudent().getStudentUUID();
-        this. amount = paymentRecord.getAmount();
+        this.amount = paymentRecord.getAmount();
         this.paymentDate = paymentRecord.getPaymentDate();
         this.method = paymentRecord.getMethod();
         this.status = paymentRecord.getStatus();
         this.proofOfPaymentUrl = paymentRecord.getProofOfPaymentUrl();
-        this.verifiedByAdminId = getVerifiedByAdminId();
+        // Get the admin ID from the Users object
+        this.verifiedByAdminId = paymentRecord.getVerifiedByAdmin() != null
+                ? paymentRecord.getVerifiedByAdmin().getUuid()
+                : null;
     }
 }
