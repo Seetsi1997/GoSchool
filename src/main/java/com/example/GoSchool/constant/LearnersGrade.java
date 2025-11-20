@@ -19,7 +19,8 @@ public enum LearnersGrade {
     public static LearnersGrade fromString(String key) {
         // Handle null input gracefully
         if (key == null) return null;
+        String normalized = key.trim().toUpperCase().replace(" ", "_");
         // Convert input to uppercase to match enum names
-        return LearnersGrade.valueOf(key.toUpperCase());
+        return LearnersGrade.valueOf(normalized);
     }
 }
