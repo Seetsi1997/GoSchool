@@ -117,6 +117,7 @@ public class ParentService {
             dto.setEmail(parent.getUserAccount().getEmail());
             dto.setUserId(parent.getUserAccount().getUuid());
             dto.setRole(parent.getUserAccount().getRole());
+            dto.setFirstName(parent.getUserAccount().getParent().getFirstName());
         }
 
         // Map children if needed
@@ -165,8 +166,6 @@ public class ParentService {
 
         return parentRepository.save(existingParent);
     }
-
-
 
     // Delete parent
     public void deleteParent(UUID parentUUID) {

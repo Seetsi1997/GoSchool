@@ -16,4 +16,7 @@ public class UserDTO {
     private String phoneNumber;
     private String profileImageUrl;
     private Role role;
+    private UUID parentUUID;
+    private String parentFirstName;
+
 }

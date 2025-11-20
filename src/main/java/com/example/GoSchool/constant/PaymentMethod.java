@@ -11,7 +11,9 @@ public enum PaymentMethod {
     public static PaymentMethod fromString(String key) {
         // Handle null input gracefully
         if (key == null) return null;
-        // Convert input to uppercase to match enum names
-        return PaymentMethod.valueOf(key.toUpperCase());
+        // Normalize input
+        String normalized = key.trim().toUpperCase().replace(" ", "_");
+                // Convert input to uppercase to match enum names
+        return PaymentMethod.valueOf(normalized);
     }
 }

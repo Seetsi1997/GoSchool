@@ -15,4 +15,5 @@ public class LocationDTO {
     private String address;
     private String postalCode;
     private Province province;
+    private String suburb;
 }

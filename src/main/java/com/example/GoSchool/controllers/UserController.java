@@ -1,6 +1,8 @@
 package com.example.GoSchool.controllers;
 
+import com.example.GoSchool.constant.Role;
 import com.example.GoSchool.dtos.*;
+import com.example.GoSchool.model.Parent;
 import com.example.GoSchool.model.Users;
 import com.example.GoSchool.repository.UserRepository;
 import com.example.GoSchool.service.EmailService;
@@ -121,7 +123,6 @@ public  class UserController {
         String rawPassword = loginRequest.getPassword();
 
         try {
-            // Check if user exists first
             Optional<Users> optionalUser = userRepository.findByEmailIgnoreCase(email);
             if (optionalUser.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -130,29 +131,39 @@ public  class UserController {
 
             Users user = optionalUser.get();
 
-            // Check password immediately before authentication
             if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Wrong password"));
             }
 
-            // If password matches, proceed with authentication
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, rawPassword)
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Generate JWT token
             String token = jwtUtil.generateToken(authentication.getName(), authentication.getAuthorities());
 
-            return ResponseEntity.ok(new UserLoginResponse(
-                    token,
-                    user.getRole().name(),
-                    user.getPhoneNumber(),
-                    user.getFirstName(),
-                    user.getUuid()
-            ));
+            // Base response
+            UserLoginResponse response = new UserLoginResponse();
+            response.setToken(token);
+            response.setRole(user.getRole().name());
+            response.setPhoneNumber(user.getPhoneNumber());
+            response.setFirstName(user.getFirstName());
+            response.setEmail(user.getEmail());
+            response.setUuid(user.getUuid());
+
+            // include parent info if user == PARENT
+            if (user.getRole() == Role.PARENT) {
+                Parent parent = user.getParent();
+
+                response.setParentFirstName(parent.getFirstName());
+                response.setParentUUID(parent.getParentUUID());
+            }
+
+            System.out.println("Sending login response: " + response);
+
+            return ResponseEntity.ok(response);
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -162,6 +173,7 @@ public  class UserController {
                     .body(Map.of("error", "An unexpected error occurred"));
         }
     }
+
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO request) {
