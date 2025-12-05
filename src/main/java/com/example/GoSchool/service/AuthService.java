@@ -45,11 +45,15 @@ public class AuthService {
         user.setFirstName(capitalizeWords(firstName));
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setPhoneNumber(phoneNumber);
-        user.setRole(role != null ? role : Role.ADMIN);
-        user.setVerified(true  );
+
+        Role finalRole = (role != null ? role : Role.ADMIN);
+        user.setRole(finalRole);
+
+        user.setVerified(finalRole == Role.ADMIN);
 
         return userRepository.save(user);
     }
+
 
     public Users getAdminByEmail(String email) {
         Users user = userRepository.findByEmailIgnoreCase(email)
