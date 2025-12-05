@@ -13,9 +13,11 @@ public class UserLoginResponse {
     private String token;
     private String role;
     private String email;
-    private  String phoneNumber;
+    private String phoneNumber;
     private String firstName;
     private UUID uuid;
     private UUID parentUUID;
     private String parentFirstName;
+    private UUID driverUUID;
+    private String driverName;
 }

@@ -58,9 +58,11 @@ public class DriverRouteDetailsService {
     @Transactional
     public DriverRouteDetails update(UUID id, DriverRouteDetailsDTO dto) {
         DriverRouteDetails existing = getById(id);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
         existing.setSchoolName(dto.getSchoolName());
-        existing.setPickupTime(LocalTime.parse(dto.getPickupTime()));
-        existing.setDropOffTime(LocalTime.parse(dto.getDropOffTime()));
+        existing.setPickupTime(LocalTime.parse(dto.getPickupTime(), formatter));
+        existing.setDropOffTime(LocalTime.parse(dto.getDropOffTime(), formatter));
         existing.setMonthlyFee(dto.getMonthlyFee());
         return routeRepo.save(existing);
     }

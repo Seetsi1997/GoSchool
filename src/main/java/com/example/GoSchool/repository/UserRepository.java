@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<Users, UUID> {
     Optional<Users> findByResetToken(String resetToken);
     Optional<Users> findByUuid(UUID uuid);
     List<Users> findByRole(Role role);
+
 }

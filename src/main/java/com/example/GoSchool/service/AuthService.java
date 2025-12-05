@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,31 +23,45 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Users registerBaseUser(String email, String username, Role role, String rawPassword, String contact) {
+    public Users registerBaseUser(String email, String firstName, Role role, String rawPassword, String phoneNumber) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email must not be empty");
         }
-        if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
-            throw new IllegalArgumentException("Email already exists");
+        if (firstName == null || firstName.isBlank()) {
+            throw new IllegalArgumentException("First name must not be empty");
         }
         if (rawPassword == null || rawPassword.isBlank()) {
             throw new IllegalArgumentException("Password must not be empty");
         }
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("Username must not be empty");
+        if (phoneNumber == null || phoneNumber.isBlank()) {
+            throw new IllegalArgumentException("Phone number must not be empty");
+        }
+        if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
+            throw new IllegalArgumentException("Email already exists");
         }
 
         Users user = new Users();
-      //  user.setUuid(uuid);
         user.setEmail(email.toLowerCase());
+        user.setFirstName(capitalizeWords(firstName));
         user.setPassword(passwordEncoder.encode(rawPassword));
-        user.setFirstName(capitalizeWords(username));
-        user.setPhoneNumber(contact);
-        user.setRole(role);
-        user.setVerified(false);
+        user.setPhoneNumber(phoneNumber);
+        user.setRole(role != null ? role : Role.ADMIN);
+        user.setVerified(true  );
 
         return userRepository.save(user);
     }
+
+    public Users getAdminByEmail(String email) {
+        Users user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        if (!user.getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("This user is not an admin");
+        }
+
+        return user;
+    }
+
 
     private String capitalizeWords(String input) {
         return Arrays.stream(input.trim().split("\\s+"))

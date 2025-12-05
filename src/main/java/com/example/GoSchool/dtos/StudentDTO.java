@@ -3,7 +3,6 @@ package com.example.GoSchool.dtos;
 import com.example.GoSchool.constant.LearnersGrade;
 import com.example.GoSchool.constant.PaymentStatus;
 import com.example.GoSchool.constant.Province;
-import com.example.GoSchool.model.PaymentRecord;
 import com.example.GoSchool.model.Student;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -70,5 +69,14 @@ public class StudentDTO {
         if(student.getDriver() != null) {
             this.driverDto = new DriverDTO(student.getDriver(), false);
         }
+
+
     }
+
+    public Student toEntity() {
+        Student s = new Student();
+        s.setStudentUUID(this.studentUUID);
+        return s;
+    }
+
 }

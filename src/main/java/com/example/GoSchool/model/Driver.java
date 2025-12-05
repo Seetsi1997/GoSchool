@@ -23,17 +23,17 @@ public class Driver {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID driverUUID;
 
-    @Column(nullable = false)
+    @Column(name = "driver_name",nullable = false)
     private String driverName;
 
-    @Column(nullable = false)
+    @Column(name = "driver_surname", nullable = false)
     private String driverSurname;
 
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Location driverLocation;
 
-    @Column(nullable = false)
+    @Column(name = "driver_total_number_of_students", nullable = false)
     private int totalNumberOfStudents;
 
     @Column(nullable = false)

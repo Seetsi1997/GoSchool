@@ -1,5 +1,6 @@
 package com.example.GoSchool.security;
 
+import com.example.GoSchool.constant.Role;
 import com.example.GoSchool.service.CustomUserDetailsService;
 import com.example.GoSchool.service.TokenBlacklistService;
 import com.example.GoSchool.utils.JwtAuthFilter;
@@ -79,7 +80,7 @@ public class CorsConfig {
                                     // Public endpoints - specific patterns first
                                     .requestMatchers(
                                             "/uploads/**",
-                                            "/auth/api/admins",
+                                            "/auth/api/users/admin/register",
                                             "/auth/api/parents/register",
                                             "/auth/api/users/register",
                                             "/auth/api/users/login",
@@ -92,7 +93,10 @@ public class CorsConfig {
                                             "/auth/api/payments/student/{studentId}",
                                             "/auth/api/parents/{parentUUID}/students/{studentId}",
                                             "/auth/api/drivers/me/{userUUID}",
-                                            "/auth/api/drivers"
+                                            "/auth/api/drivers",
+                                            "/auth/api/transport/apply",
+                                            "auth/api/transport/applications/parent/{parentId}/route/{routeId}"
+
                                     ).permitAll()
 
                                     // Parent endpoints - specific to general
@@ -101,10 +105,15 @@ public class CorsConfig {
                                     .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
 
                                     // Driver routes endpoints
-                                    .requestMatchers("/auth/api/drivers/*/routes").hasRole("PARENT")
-                                    .requestMatchers("/auth/api/drivers/*/routes/*").hasRole("PARENT")
-                                    .requestMatchers("/auth/api/drivers/*/routes/**").hasRole("PARENT")
+                                    .requestMatchers("/auth/api/drivers/*/routes").hasAnyRole("PARENT", "DRIVER")
+                                    .requestMatchers("/auth/api/drivers/*/routes/*").hasAnyRole("PARENT", "DRIVER")
+                                    .requestMatchers("/auth/api/drivers/*/routes/**").hasAnyRole("PARENT", "DRIVER")
+
+                                    .requestMatchers("/auth/api/drivers/me/routes").hasAnyRole("DRIVER", "PARENT")
+                                    .requestMatchers("/auth/api/users/admin/**").hasRole("ADMIN")
+
                                     .requestMatchers("/auth/api/drivers/profile").authenticated()
+                                    .requestMatchers("/auth/api/users/admin/profile").authenticated()
 
                                    // Payment endpoints - require authentication
                                     .requestMatchers("/auth/api/payments/upload").hasRole("PARENT")

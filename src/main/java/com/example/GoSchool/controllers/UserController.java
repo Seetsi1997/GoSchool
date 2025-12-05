@@ -2,6 +2,7 @@ package com.example.GoSchool.controllers;
 
 import com.example.GoSchool.constant.Role;
 import com.example.GoSchool.dtos.*;
+import com.example.GoSchool.model.Driver;
 import com.example.GoSchool.model.Parent;
 import com.example.GoSchool.model.Users;
 import com.example.GoSchool.repository.UserRepository;
@@ -13,8 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.AuthenticationManager;import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -95,7 +95,7 @@ public  class UserController {
             return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
         }
 
-        if (request.getUsername() == null || request.getUsername().isBlank()) {
+        if (request.getFirstName() == null || request.getFirstName().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Username must not be empty"));
         }
 
@@ -103,7 +103,7 @@ public  class UserController {
         Users user = new Users();
         user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFirstName(capitalizeWords(request.getUsername()));
+        user.setFirstName(capitalizeWords(request.getFirstName()));
         user.setRole(request.getRole());
 //        user.setVerified(false);
 //        user.setVerificationToken(UUID.randomUUID().toString());
@@ -144,7 +144,6 @@ public  class UserController {
 
             String token = jwtUtil.generateToken(authentication.getName(), authentication.getAuthorities());
 
-            // Base response
             UserLoginResponse response = new UserLoginResponse();
             response.setToken(token);
             response.setRole(user.getRole().name());
@@ -153,16 +152,24 @@ public  class UserController {
             response.setEmail(user.getEmail());
             response.setUuid(user.getUuid());
 
-            // include parent info if user == PARENT
+            // PARENT INFO
             if (user.getRole() == Role.PARENT) {
                 Parent parent = user.getParent();
-
-                response.setParentFirstName(parent.getFirstName());
                 response.setParentUUID(parent.getParentUUID());
+                response.setParentFirstName(parent.getFirstName());
+            }
+
+            // DRIVER INFO
+            if (user.getRole() == Role.DRIVER) {
+                Driver driver = user.getDriver();
+                if (driver != null) {
+                    response.setDriverUUID(driver.getDriverUUID());
+                    response.setDriverName(driver.getDriverName());
+                   // response.setDriverSurname(driver.getDriverSurname());
+                }
             }
 
             System.out.println("Sending login response: " + response);
-
             return ResponseEntity.ok(response);
 
         } catch (AuthenticationException e) {
@@ -173,7 +180,6 @@ public  class UserController {
                     .body(Map.of("error", "An unexpected error occurred"));
         }
     }
-
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordDTO request) {

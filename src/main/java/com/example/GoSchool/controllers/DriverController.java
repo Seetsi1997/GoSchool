@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth/api/drivers")
@@ -36,7 +37,7 @@ public class DriverController {
         try {
             Users savedUser = authService.registerBaseUser(
                     driverDTO.getEmail(),
-                    driverDTO.getDriverName() + " " + driverDTO.getSurname(),
+                    driverDTO.getDriverName() + " " + driverDTO.getDriverSurname(),
                     Role.DRIVER,
                     driverDTO.getPassword(),
                     driverDTO.getContact()
@@ -62,10 +63,15 @@ public class DriverController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Driver>> getAllDrivers() {
+    public ResponseEntity<List<DriverDTO>> getAllDrivers() {
         List<Driver> drivers = driverService.getAllDrivers();
-        return ResponseEntity.ok(drivers);
+        List<DriverDTO> driverDTOs = drivers.stream()
+                .map(driverService::getDriverToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(driverDTOs);
     }
+
+
     // Get current logged-in driver to get their profile
     @GetMapping("/profile")
     public ResponseEntity<DriverDTO> getCurrentDriverProfile(Authentication authentication) {
@@ -80,6 +86,16 @@ public class DriverController {
         return ResponseEntity.ok(driverDTO);
     }
 
+   @PutMapping("/profile")
+    public ResponseEntity<DriverDTO> updateCurrentDriverProfile(
+            Authentication authentication,
+            @RequestBody DriverDTO updatedDriverData
+    ) {
+        String email = authentication.getName();
 
+        Driver updatedDriver = driverService.updateDriverByEmail(email, updatedDriverData);
+
+        return ResponseEntity.ok(driverService.getDriverToDTO(updatedDriver));
+    }
 
 }

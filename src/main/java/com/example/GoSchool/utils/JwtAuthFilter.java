@@ -41,7 +41,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // skip public endpoints (as you already had)
         if (requestURI.startsWith("/auth/login") ||
-                requestURI.startsWith("/auth/register") ||
+                requestURI.startsWith("/auth/api/drivers/register") ||
                 requestURI.startsWith("/auth/verify") ||
                 requestURI.startsWith("/auth/forgot-password") ||
                 requestURI.startsWith("/auth/reset-password")) {
