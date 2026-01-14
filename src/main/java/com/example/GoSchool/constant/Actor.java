@@ -2,19 +2,17 @@ package com.example.GoSchool.constant;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-public enum ApplicationStatus {
-    DECLINED,
-    PENDING,
-    APPROVED_BY_ADMIN,
-    APPROVED_BY_DRIVER;
+public enum Actor {
+    DRIVER,
+    ADMIN;
 
     @JsonCreator
-    public static ApplicationStatus fromString(String key) {
+    public static Actor fromString(String key) {
         // Handle null input gracefully
         if (key == null) return null;
         // Normalize input
         String normalized = key.trim().toUpperCase().replace(" ", "_");
         // Convert input to uppercase to match enum names
-        return ApplicationStatus.valueOf(normalized);
+        return Actor.valueOf(normalized);
     }
 }

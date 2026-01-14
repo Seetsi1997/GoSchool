@@ -3,6 +3,8 @@ package com.example.GoSchool.dtos;
 import com.example.GoSchool.constant.PaymentMethod;
 import com.example.GoSchool.constant.PaymentStatus;
 import com.example.GoSchool.model.PaymentRecord;
+import com.example.GoSchool.model.Student;
+import com.example.GoSchool.model.Users;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,4 +38,29 @@ public class PaymentRecordDTO {
                 ? paymentRecord.getVerifiedByAdmin().getUuid()
                 : null;
     }
+
+    public PaymentRecord toEntity() {
+        PaymentRecord paymentRecord = new PaymentRecord();
+        paymentRecord.setPaymentRecordId(this.paymentRecordId);
+        paymentRecord.setAmount(this.amount);
+        paymentRecord.setPaymentDate(this.paymentDate);
+        paymentRecord.setMethod(this.method);
+        paymentRecord.setStatus(this.status);
+        paymentRecord.setProofOfPaymentUrl(this.proofOfPaymentUrl);
+
+        if (this.studentId != null) {
+            Student student = new Student();
+            student.setStudentUUID(this.studentId);
+            paymentRecord.setStudent(student);
+        }
+
+        if (this.verifiedByAdminId != null) {
+            Users admin = new Users();
+            admin.setUuid(this.verifiedByAdminId);
+            paymentRecord.setVerifiedByAdmin(admin);
+        }
+
+        return paymentRecord;
+    }
+
 }

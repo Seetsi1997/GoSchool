@@ -23,7 +23,6 @@ public class DriverDTO {
 
     @NotBlank(message = "Driver surname is required")
     private String driverSurname;
-
     private String email;
     private String contact;
     private String password;
@@ -68,9 +67,11 @@ public class DriverDTO {
                     .stream()
                     .map(StudentDTO::new)
                     .collect(Collectors.toList());
+
+            System.out.println("include Student: " + assignedStudents);
         }
 
-        // Route Details (NEW)
+        // Route Details
         if(driver.getRouteDetails() != null) {
             this.routeDetails = driver.getRouteDetails()
                     .stream()

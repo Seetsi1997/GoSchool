@@ -2,12 +2,15 @@ package com.example.GoSchool.service;
 
 import com.example.GoSchool.constant.LearnersGrade;
 import com.example.GoSchool.dtos.StudentDTO;
+import com.example.GoSchool.mapper.StudentMapper;
 import com.example.GoSchool.model.Parent;
 import com.example.GoSchool.model.PaymentRecord;
 import com.example.GoSchool.model.Student;
 import com.example.GoSchool.repository.ParentRepository;
 import com.example.GoSchool.repository.PaymentRecordRepository;
 import com.example.GoSchool.repository.StudentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,17 +22,21 @@ import java.util.stream.Collectors;
 @Service
 public class StudentService {
 
+    private static final Logger log = LoggerFactory.getLogger(StudentService.class);
     private final StudentRepository studentRepository;
     private final ParentRepository parentRepository;
     private final PaymentRecordRepository paymentRecordRepository;
+    private final StudentMapper studentMapper;
 
     @Autowired
     public StudentService(StudentRepository studentRepository,
                           ParentRepository parentRepository,
-                          PaymentRecordRepository paymentRecordRepository) {
+                          PaymentRecordRepository paymentRecordRepository,
+                          StudentMapper studentMapper) {
         this.studentRepository = studentRepository;
         this.parentRepository = parentRepository;
         this.paymentRecordRepository = paymentRecordRepository;
+        this.studentMapper = studentMapper;
     }
 
     // Create a new student
@@ -103,7 +110,7 @@ public class StudentService {
         if (!parentRepository.existsById(parentId)) {
             throw new RuntimeException("Parent not found with id: " + parentId);
         }
-        return studentRepository.findByParentParentUUID(parentId);
+        return studentRepository.findByParent_ParentUUID(parentId);
     }
 
     // Get all students for a specific parent with DTO conversion
@@ -113,7 +120,7 @@ public class StudentService {
             throw new RuntimeException("Parent not found with id: " + parentId);
         }
 
-        List<Student> students = studentRepository.findByParentParentUUID(parentId);
+        List<Student> students = studentRepository.findByParent_ParentUUID(parentId);
         return students.stream()
                 .map(StudentDTO::new)
                 .collect(Collectors.toList());
@@ -166,7 +173,28 @@ public class StudentService {
         if (!parentRepository.existsById(parentId)) {
             throw new RuntimeException("Parent not found with id: " + parentId);
         }
-        return studentRepository.findByParentParentUUID(parentId).size();
+        return studentRepository.findByParent_ParentUUID(parentId).size();
     }
+
+    // Get student by their driver
+    public List<StudentDTO> getStudentsByDriver(UUID driverUUID) {
+        return studentRepository
+                .findByDriver_DriverUUID(driverUUID)
+                .stream()
+                .map(studentMapper::toDTO)
+                .toList();
+    }
+
+    // Get students by their parent
+    public List<StudentDTO> getStudentsByParent(UUID parentUUID) {
+        List<StudentDTO> students;
+        students = studentRepository.findByParent_ParentUUID(parentUUID)
+                .stream()
+                .map(StudentDTO::new)
+                .toList();
+
+        return students;
+    }
+
 }
 

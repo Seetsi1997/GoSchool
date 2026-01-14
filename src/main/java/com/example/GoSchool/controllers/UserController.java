@@ -65,6 +65,7 @@ public  class UserController {
 
     }
 
+    // We capitalize words
     public static String capitalizeWords(String input) {
         if (input == null || input.isBlank()) {
             return input; // return as is if null or empty
@@ -76,6 +77,45 @@ public  class UserController {
                 .collect(Collectors.joining(" "));
     }
 
+    // Get user login response
+    private static UserLoginResponse getUserLoginResponse(String token, Users user) {
+        UserLoginResponse response = new UserLoginResponse();
+        response.setToken(token);
+        response.setRole(user.getRole().name());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setFirstName(user.getFirstName());
+        response.setEmail(user.getEmail());
+        response.setUuid(user.getUuid());
+
+        // PARENT INFO
+        if (user.getRole() == Role.PARENT) {
+            Parent parent = user.getParent();
+            response.setParentUUID(parent.getParentUUID());
+            response.setParentFirstName(parent.getFirstName());
+        }
+
+        // DRIVER INFO
+        if (user.getRole() == Role.DRIVER) {
+            Driver driver = user.getDriver();
+            if (driver != null) {
+                response.setDriverUUID(driver.getDriverUUID());
+                response.setDriverName(driver.getDriverName());
+                // response.setDriverSurname(driver.getDriverSurname());
+            }
+        }
+        return response;
+    }
+
+    // Extra token from request
+    private String extractTokenFromRequest(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
+    }
+
+    // Register user
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegistrationDTO request) {
         // Validate required fields
@@ -117,6 +157,7 @@ public  class UserController {
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }
 
+    // User login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
         String email = loginRequest.getEmail().toLowerCase();
@@ -144,30 +185,7 @@ public  class UserController {
 
             String token = jwtUtil.generateToken(authentication.getName(), authentication.getAuthorities());
 
-            UserLoginResponse response = new UserLoginResponse();
-            response.setToken(token);
-            response.setRole(user.getRole().name());
-            response.setPhoneNumber(user.getPhoneNumber());
-            response.setFirstName(user.getFirstName());
-            response.setEmail(user.getEmail());
-            response.setUuid(user.getUuid());
-
-            // PARENT INFO
-            if (user.getRole() == Role.PARENT) {
-                Parent parent = user.getParent();
-                response.setParentUUID(parent.getParentUUID());
-                response.setParentFirstName(parent.getFirstName());
-            }
-
-            // DRIVER INFO
-            if (user.getRole() == Role.DRIVER) {
-                Driver driver = user.getDriver();
-                if (driver != null) {
-                    response.setDriverUUID(driver.getDriverUUID());
-                    response.setDriverName(driver.getDriverName());
-                   // response.setDriverSurname(driver.getDriverSurname());
-                }
-            }
+            UserLoginResponse response = getUserLoginResponse(token, user);
 
             System.out.println("Sending login response: " + response);
             return ResponseEntity.ok(response);
@@ -204,7 +222,7 @@ public  class UserController {
         return ResponseEntity.ok(Map.of("message", "If the email exists, a reset link will be sent"));
     }
 
-
+    // User reset password
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO request) {
         Optional<Users> userOpt = userRepository.findByResetToken(request.getToken());
@@ -225,6 +243,7 @@ public  class UserController {
         return ResponseEntity.ok(Map.of("message", "Password has been reset successfully"));
     }
 
+    // User logout
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = extractTokenFromRequest(request);
@@ -242,14 +261,7 @@ public  class UserController {
         return ResponseEntity.ok().body(Map.of("message", "Logout successful"));
     }
 
-    private String extractTokenFromRequest(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
-        }
-        return null;
-    }
-
+    // User changed password
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO,
                                             HttpServletRequest request) {
@@ -344,4 +356,5 @@ public  class UserController {
                     .body(Map.of("error", "An error occurred while changing password: " + e.getMessage()));
         }
     }
+
 }

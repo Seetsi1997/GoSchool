@@ -62,7 +62,6 @@ public class JwtUtil{
     }
 
     public String extractUsername(String token) {
-        System.out.println("JWT Validation - Token: " + token.substring(0, Math.min(20, token.length())) + "...");
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)

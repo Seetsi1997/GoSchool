@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,7 @@ public class ParentController {
        // this.passwordEncoder = passwordEncoder;
     }
 
+    // Map to entity
     private Student mapToEntity(StudentDTO dto) {
         Student student = new Student();
         student.setStudentUUID(dto.getStudentUUID());
@@ -58,6 +60,7 @@ public class ParentController {
         return student;
     }
 
+    // Map to dto
     private StudentDTO mapToDTO(Student student) {
         StudentDTO dto = new StudentDTO();
         dto.setStudentUUID(student.getStudentUUID());
@@ -83,6 +86,7 @@ public class ParentController {
         return dto;
     }
 
+    // Get parent to dto
     private static ParentDTO getParentDTO(Student student) {
         Parent parent = student.getParent();
         ParentDTO parentDTO = new ParentDTO();
@@ -125,6 +129,42 @@ public class ParentController {
         return parentDTO;
     }
 
+    // Helper method to check ownership
+    private boolean isStudentBelongsToParent(Student student, UUID parentUUID) {
+        return student.getParent() != null &&
+                student.getParent().getParentUUID().equals(parentUUID);
+    }
+
+    // Converts Student → StudentDTO (matches Angular fields)
+    private StudentDTO convertToDTO(Student student) {
+        StudentDTO dto = new StudentDTO();
+
+        dto.setStudentUUID(student.getStudentUUID());
+        dto.setStudentFirstName(student.getStudentFirstName());
+        dto.setStudentSurname(student.getStudentSurname());
+        dto.setStudentGrade(student.getStudentGrade());
+        dto.setSchoolName(student.getSchoolName());
+        dto.setPaymentStatus(student.getPaymentStatus());
+        dto.setMonthlyPaymentAmount(student.getMonthlyPaymentAmount());
+
+        if (student.getParent() != null) {
+            dto.setParentUUID(student.getParent().getParentUUID());
+            dto.setParentName(student.getParent().getFirstName());
+            dto.setParentEmail(student.getParent().getUserAccount().getEmail());
+            dto.setParentPhoneNumber(student.getParent().getContact());
+            dto.setParentAddress(student.getParent().getParentLocation().getAddress());
+            dto.setParentCity(student.getParent().getParentLocation().getCity());
+            dto.setParentProvince(student.getParent().getParentLocation().getProvince());
+            dto.setParentPostalCode(student.getParent().getParentLocation().getPostalCode());
+        }
+
+        // Only include payment records if you need them
+        // dto.setPaymentRecordDTO(student.getPaymentRecords());
+
+        return dto;
+    }
+
+    // Register parent
     @PostMapping("/register")
     public ResponseEntity<?> registerParent(@Valid @RequestBody ParentDTO parentDTO) {
         try {
@@ -178,6 +218,7 @@ public class ParentController {
         return ResponseEntity.ok(updatedParentDTOResponse);
     }
 
+    // Create / Add student to the parent by parent uuid
     @PostMapping("/{parentId}/students")
     public ResponseEntity<StudentDTO> createStudent(
             @PathVariable UUID parentId,
@@ -210,7 +251,6 @@ public class ParentController {
         }
     }
 
-
     // Get specific student belonging to current parent
     @GetMapping("/me/students/{studentUUID}")
     public ResponseEntity<StudentDTO> getMyStudent(
@@ -241,6 +281,7 @@ public class ParentController {
         }
     }
 
+    // Update student information
     @PutMapping("/{parentUUID}/students/{studentId}")
     public ResponseEntity<?> updateStudent(
             @PathVariable UUID parentUUID,
@@ -274,39 +315,23 @@ public class ParentController {
         }
     }
 
-    // Helper method to check ownership
-    private boolean isStudentBelongsToParent(Student student, UUID parentUUID) {
-        return student.getParent() != null &&
-                student.getParent().getParentUUID().equals(parentUUID);
+
+    // Get student (children) by parent uuid
+    @GetMapping("/{parentId}/children")
+    public ResponseEntity<List<StudentDTO>> getChildrenByParent(
+            @PathVariable UUID parentId) {
+
+        return ResponseEntity.ok(
+                parentService.getChildrenByParent(parentId)
+        );
     }
 
-    // Converts Student → StudentDTO (matches Angular fields)
-    private StudentDTO convertToDTO(Student student) {
-        StudentDTO dto = new StudentDTO();
-
-        dto.setStudentUUID(student.getStudentUUID());
-        dto.setStudentFirstName(student.getStudentFirstName());
-        dto.setStudentSurname(student.getStudentSurname());
-        dto.setStudentGrade(student.getStudentGrade());
-        dto.setSchoolName(student.getSchoolName());
-        dto.setPaymentStatus(student.getPaymentStatus());
-        dto.setMonthlyPaymentAmount(student.getMonthlyPaymentAmount());
-
-        if (student.getParent() != null) {
-            dto.setParentUUID(student.getParent().getParentUUID());
-            dto.setParentName(student.getParent().getFirstName());
-            dto.setParentEmail(student.getParent().getUserAccount().getEmail());
-            dto.setParentPhoneNumber(student.getParent().getContact());
-            dto.setParentAddress(student.getParent().getParentLocation().getAddress());
-            dto.setParentCity(student.getParent().getParentLocation().getCity());
-            dto.setParentProvince(student.getParent().getParentLocation().getProvince());
-            dto.setParentPostalCode(student.getParent().getParentLocation().getPostalCode());
-        }
-
-        // Only include payment records if you need them
-       // dto.setPaymentRecordDTO(student.getPaymentRecords());
-
-        return dto;
+    // Get student (children) by parent uuid
+    @GetMapping("/{parentUUID}/students")
+    public ResponseEntity<List<StudentDTO>> getStudentsByParent(
+            @PathVariable UUID parentUUID
+    ) {
+        return ResponseEntity.ok(studentService.getStudentsByParent(parentUUID));
     }
 
 }

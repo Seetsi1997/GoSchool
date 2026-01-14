@@ -23,7 +23,7 @@ public class TransportApplication {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private UUID applicationId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "parent_id", nullable = false)
@@ -42,9 +42,15 @@ public class TransportApplication {
     @Column(name = "applied_at", nullable = false)
     private LocalDateTime appliedAt = LocalDateTime.now();
 
-    @Column(name = "approved", nullable = false)
-    private boolean approved = false;
-
     @Enumerated(EnumType.STRING)
-    private ApplicationStatus applicationStatus;
+    @Column(name = "application_status", nullable = false)
+    private ApplicationStatus applicationStatus = ApplicationStatus.PENDING;
+
+    @ManyToOne
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
+
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 }
+

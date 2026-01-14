@@ -1,8 +1,10 @@
 package com.example.GoSchool.model;
 
+import com.example.GoSchool.constant.ApplicationStatus;
 import com.example.GoSchool.constant.LearnersGrade;
 import com.example.GoSchool.constant.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +44,7 @@ public class Student {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id", nullable = false)
+    @JsonManagedReference
     private Parent parent;
 
     @Enumerated(EnumType.STRING)
@@ -50,8 +53,23 @@ public class Student {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentRecord> paymentRecords = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "driver_id")
     @JsonBackReference
     private Driver driver;
+
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus transportApplicationStatus;
+
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "studentUUID=" + studentUUID +
+                ", firstName='" + studentFirstName + '\'' +
+                '}';
+    }
+
+
+
 }

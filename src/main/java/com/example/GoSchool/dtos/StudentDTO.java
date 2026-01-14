@@ -1,5 +1,6 @@
 package com.example.GoSchool.dtos;
 
+import com.example.GoSchool.constant.ApplicationStatus;
 import com.example.GoSchool.constant.LearnersGrade;
 import com.example.GoSchool.constant.PaymentStatus;
 import com.example.GoSchool.constant.Province;
@@ -34,8 +35,12 @@ public class StudentDTO {
     private Province parentProvince;
     private List<PaymentRecordDTO> paymentRecordDTOS;
     private DriverDTO driverDto;
+    private ApplicationStatus transportApplicationStatus;
+
+
 
     public StudentDTO(Student student) {
+
         if(student == null) return;
 
         this.studentUUID = student.getStudentUUID();
@@ -45,6 +50,7 @@ public class StudentDTO {
         this.monthlyPaymentAmount = student.getMonthlyPaymentAmount();
         this.paymentStatus = student.getPaymentStatus();
         this.studentGrade = student.getStudentGrade();
+        this.transportApplicationStatus = student.getTransportApplicationStatus();
 
         if(student.getParent() != null) {
             this.parentUUID = student.getParent().getParentUUID();
@@ -68,8 +74,10 @@ public class StudentDTO {
 
         if(student.getDriver() != null) {
             this.driverDto = new DriverDTO(student.getDriver(), false);
+            System.out.println("Driver DTO set: " + this.driverDto.getDriverName());
+        } else {
+            System.out.println("No driver assigned for student: " + student.getStudentFirstName()) ;
         }
-
 
     }
 

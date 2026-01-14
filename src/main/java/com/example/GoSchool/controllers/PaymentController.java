@@ -30,7 +30,8 @@ public class PaymentController {
         this.paymentRecordService = paymentRecordService;
         this.studentService = studentService;
     }
-    // Parent uploads proof of payment - MAKE SURE THIS ENDPOINT EXISTS
+
+    // Parent uploads proof of payment
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProofOfPayment(
             @RequestParam("studentId") UUID studentId,

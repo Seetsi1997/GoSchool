@@ -7,7 +7,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "driver_details")
+@Table(name = "driver_router")
 @Data
 @Builder
 @NoArgsConstructor

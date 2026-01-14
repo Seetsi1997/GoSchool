@@ -8,6 +8,7 @@ import com.example.GoSchool.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -95,15 +96,44 @@ public class CorsConfig {
                                             "/auth/api/drivers/me/{userUUID}",
                                             "/auth/api/drivers",
                                             "/auth/api/transport/apply",
-                                            "auth/api/transport/applications/parent/{parentId}/route/{routeId}"
+                                            "auth/api/transport/applications/parent/{parentId}/route/{routeId}",
+                                            "/auth/api/drivers/{province}/students",
+                                            "/auth/api/users/admin/drivers/*/students",
+                                            "/auth/api/drivers/driver/{driverId}/assign/student/{studentId}"
 
                                     ).permitAll()
 
-                                    // Parent endpoints - specific to general
+                                    .requestMatchers(HttpMethod.GET, "/auth/api/parents/*/children").hasRole("ADMIN")
+                                    // Driver sees students who applied
+                                    .requestMatchers(HttpMethod.GET,
+                                            "/auth/api/transport/*/students"
+                                    ).hasAnyRole("DRIVER", "ADMIN")
+                                    .requestMatchers(HttpMethod.GET,
+                                    "/auth/api/transport/*/applications"
+                                     ).hasAnyRole("DRIVER", "ADMIN")
+
+                                   // Admin approves
+                                    .requestMatchers(HttpMethod.POST,
+                                            "/auth/api/transport/*/applications/*/approve"
+                                    ).hasRole("ADMIN")
+
+                                    // Admin rejects
+                                    .requestMatchers(HttpMethod.POST,
+                                            "/auth/api/transport/*/applications/*/reject"
+                                    ).hasRole("ADMIN")
+
+                            .requestMatchers(
+                                    HttpMethod.GET,
+                                    "/auth/api/driver/notifications",
+                                    "/auth/api/driver/notifications/**"
+                            ).hasRole("DRIVER")
+
+
+                            // Parent endpoints - specific to general
                                     .requestMatchers("/auth/api/parents/me/students").authenticated()
                                     .requestMatchers("/auth/api/parents/profile").authenticated()
-                                    .requestMatchers("/auth/api/parents/**").hasRole("PARENT")
-
+                                    //.requestMatchers("/auth/api/parents/**").hasRole("PARENT")
+                                    .requestMatchers("/auth/api/parents/**").hasAnyRole("PARENT", "ADMIN")
                                     // Driver routes endpoints
                                     .requestMatchers("/auth/api/drivers/*/routes").hasAnyRole("PARENT", "DRIVER")
                                     .requestMatchers("/auth/api/drivers/*/routes/*").hasAnyRole("PARENT", "DRIVER")
@@ -136,6 +166,7 @@ public class CorsConfig {
             return http.build();
         }
     }
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);

@@ -1,6 +1,7 @@
 package com.example.GoSchool.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,11 +38,23 @@ public class Parent {
     private Location parentLocation;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Student> children = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     @JsonIgnore
     private Users userAccount;
+
+    @Override
+    public String toString() {
+        return "Parent{" +
+                "parentUUID=" + parentUUID +
+                ", firstName='" + firstName + '\'' +
+                ", surname='" + surname + '\'' +
+                ", contact='" + contact + '\'' +
+                '}';
+    }
+
 }
 

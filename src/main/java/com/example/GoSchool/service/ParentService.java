@@ -2,6 +2,7 @@ package com.example.GoSchool.service;
 
 import com.example.GoSchool.dtos.LocationDTO;
 import com.example.GoSchool.dtos.ParentDTO;
+import com.example.GoSchool.dtos.StudentDTO;
 import com.example.GoSchool.model.Location;
 import com.example.GoSchool.model.Parent;
 import com.example.GoSchool.model.Student;
@@ -36,6 +37,7 @@ public class ParentService {
         this.locationRepository = locationRepository;
     }
 
+    // Register parent
     public void createParent(@Valid ParentDTO parentDTO, UUID userId) {
         // Fetch user
         Users user = userRepository.findById(userId)
@@ -89,12 +91,13 @@ public class ParentService {
         return parentRepository.findAll();
     }
 
-
+    // Get parent by their email
     public Parent getParentByEmail(String email) {
         return parentRepository.findByUserAccountEmail(email)
                 .orElseThrow(() -> new RuntimeException("Parent not found with email: " + email));
     }
 
+    // Get parent to dtos
     public ParentDTO getParentToDTO(Parent parent) {
         ParentDTO dto = new ParentDTO();
         dto.setParentUUID(parent.getParentUUID());
@@ -129,7 +132,6 @@ public class ParentService {
 
         return dto;
     }
-
 
     // Update parent
     public Parent updateParent(UUID parentUUID, ParentDTO updatedParentDTO) {
@@ -188,5 +190,22 @@ public class ParentService {
         parent.getChildren().add(student);
         student.setParent(parent); // make sure Student entity has a parent field
         return parentRepository.save(parent);
+    }
+
+    // Fetch children by their parent
+    public List<StudentDTO> getChildrenByParent(UUID parentId) {
+
+        return studentRepository.findByParent_ParentUUID(parentId)
+                .stream()
+                .map(student -> {
+                    StudentDTO dto = new StudentDTO();
+                    dto.setStudentUUID(student.getStudentUUID());
+                    dto.setStudentFirstName(student.getStudentFirstName());
+                    dto.setStudentSurname(student.getStudentSurname());
+                    dto.setSchoolName(student.getSchoolName());
+                    dto.setStudentGrade(student.getStudentGrade());
+                    return dto;
+                })
+                .toList();
     }
 }

@@ -40,7 +40,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // skip public endpoints (as you already had)
-        if (requestURI.startsWith("/auth/login") ||
+        if (requestURI.startsWith("/auth/api/users/admin/drivers/") ||
+                requestURI.startsWith( "/auth/api/parents/*/children") ||
+                requestURI.startsWith("/auth/login") ||
                 requestURI.startsWith("/auth/api/drivers/register") ||
                 requestURI.startsWith("/auth/verify") ||
                 requestURI.startsWith("/auth/forgot-password") ||
@@ -99,8 +101,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         Object rolesObject = claims.get("roles");
         System.out.println("Extracted roles from JWT: " + rolesObject);
 
-        if (rolesObject instanceof Collection<?>) {
-            Collection<?> roles = (Collection<?>) rolesObject;
+        if (rolesObject instanceof Collection<?> roles) {
 
             return roles.stream()
                     .filter(role -> role instanceof String)

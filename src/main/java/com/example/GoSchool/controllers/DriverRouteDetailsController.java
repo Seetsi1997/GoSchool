@@ -5,6 +5,7 @@ import com.example.GoSchool.model.Driver;
 import com.example.GoSchool.model.DriverRouteDetails;
 import com.example.GoSchool.service.DriverRouteDetailsService;
 import com.example.GoSchool.service.DriverService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class DriverRouteDetailsController {
     private final DriverRouteDetailsService routeService;
     private final DriverService driverService;
 
+    @Autowired
     public DriverRouteDetailsController(DriverRouteDetailsService routeService, DriverService driverService) {
         this.routeService = routeService;
         this.driverService = driverService;
@@ -72,6 +74,7 @@ public class DriverRouteDetailsController {
         return ResponseEntity.ok(new DriverRouteDetailsDTO(route));
     }
 
+    // Create route transport by driver uuid
     @PostMapping("/{driverId}/routes")
     public ResponseEntity<?> createRoute(
             @PathVariable UUID driverId,
@@ -81,6 +84,7 @@ public class DriverRouteDetailsController {
         return ResponseEntity.ok(new DriverRouteDetailsDTO(saved));
     }
 
+    // Update route by driver uuid
     @PutMapping("/{driverId}/routes/{routeId}")
     public ResponseEntity<?> updateRoute(
             @PathVariable UUID driverId,
@@ -91,6 +95,7 @@ public class DriverRouteDetailsController {
         return ResponseEntity.ok(new DriverRouteDetailsDTO(updated));
     }
 
+    // Delete route by driver uuid
     @DeleteMapping("/{driverId}/routes/{routeId}")
     public ResponseEntity<?> deleteRoute(
             @PathVariable UUID driverId,

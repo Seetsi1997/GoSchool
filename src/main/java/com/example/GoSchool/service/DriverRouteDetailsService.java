@@ -5,6 +5,7 @@ import com.example.GoSchool.model.Driver;
 import com.example.GoSchool.model.DriverRouteDetails;
 import com.example.GoSchool.repository.DriverRepository;
 import com.example.GoSchool.repository.DriverRouteDetailsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +20,13 @@ public class DriverRouteDetailsService {
     private final DriverRouteDetailsRepository routeRepo;
     private final DriverRepository driverRepository;
 
+    @Autowired
     public DriverRouteDetailsService(DriverRouteDetailsRepository routeRepo, DriverRepository driverRepository) {
         this.routeRepo = routeRepo;
         this.driverRepository = driverRepository;
     }
 
+    // Create driver route for their transport
     @Transactional
     public DriverRouteDetails createForDriver(UUID driverUUID, DriverRouteDetailsDTO dto) {
         Driver driver = driverRepository.findById(driverUUID)
@@ -46,15 +49,18 @@ public class DriverRouteDetailsService {
         return saved;
     }
 
+    // List driver route
     public List<DriverRouteDetails> listForDriver(UUID driverUUID) {
         return routeRepo.findByDriver_DriverUUID(driverUUID);
     }
 
+    // Get driver route by uuid
     public DriverRouteDetails getById(UUID id) {
         return routeRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Route not found: " + id));
     }
 
+    // Update driver route
     @Transactional
     public DriverRouteDetails update(UUID id, DriverRouteDetailsDTO dto) {
         DriverRouteDetails existing = getById(id);
@@ -67,6 +73,7 @@ public class DriverRouteDetailsService {
         return routeRepo.save(existing);
     }
 
+    // Delete driver route
     @Transactional
     public void delete(UUID id) {
         routeRepo.deleteById(id);

@@ -41,7 +41,8 @@ public class Driver {
 
     @OneToMany(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Student> assignedStudents = new ArrayList<>();
+    private List<Student> assignedStudents;
+
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)

@@ -23,6 +23,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Register users
     public Users registerBaseUser(String email, String firstName, Role role, String rawPassword, String phoneNumber) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email must not be empty");
@@ -54,7 +55,7 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-
+    // Get admin by email
     public Users getAdminByEmail(String email) {
         Users user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
@@ -66,7 +67,7 @@ public class AuthService {
         return user;
     }
 
-
+    // Capitalize words
     private String capitalizeWords(String input) {
         return Arrays.stream(input.trim().split("\\s+"))
                 .map(w -> w.substring(0, 1).toUpperCase() + w.substring(1).toLowerCase())

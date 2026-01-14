@@ -1,5 +1,6 @@
 package com.example.GoSchool.service;
 
+import com.example.GoSchool.constant.Province;
 import com.example.GoSchool.dtos.DriverDTO;
 import com.example.GoSchool.dtos.StudentDTO;
 import com.example.GoSchool.dtos.LocationDTO;
@@ -7,10 +8,12 @@ import com.example.GoSchool.model.*;
 import com.example.GoSchool.model.Users;
 import com.example.GoSchool.repository.DriverRepository;
 import com.example.GoSchool.repository.LocationRepository;
+import com.example.GoSchool.repository.StudentRepository;
 import com.example.GoSchool.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,18 +23,23 @@ import java.util.stream.Collectors;
 @Service
 public class DriverService {
 
-    private  final UserRepository userRepository;
+    private final UserRepository userRepository;
     private final DriverRepository driverRepository;
     private final LocationRepository locationRepository;
+    private final StudentRepository studentRepository;
 
     @Autowired
-    public DriverService(UserRepository userRepository, DriverRepository driverRepository,
-                         LocationRepository locationRepository){
+    public DriverService(UserRepository userRepository,
+                         DriverRepository driverRepository,
+                         LocationRepository locationRepository,
+                         StudentRepository studentRepository){
         this.userRepository = userRepository;
         this.driverRepository = driverRepository;
         this.locationRepository = locationRepository;
+        this.studentRepository = studentRepository;
     }
 
+    // Register drivers
     public void createDriver(@Valid DriverDTO driverDTO, UUID userId) {
         // 1. Fetch user
         Users user = userRepository.findById(userId)
@@ -101,6 +109,7 @@ public class DriverService {
         return driverRepository.findAll();
     }
 
+    // Update drivers by email
     public Driver updateDriverByEmail(String email, DriverDTO dto) {
         Driver existingDriver = getDriverByEmail(email);
 
@@ -160,11 +169,13 @@ public class DriverService {
                 .orElseThrow(() -> new RuntimeException("Driver not found for userId: " + userId));
     }
 
+    // Find driver email
     public Driver getDriverByEmail(String email) {
         return  driverRepository.findByUserAccountEmail(email)
                 .orElseThrow(() -> new RuntimeException("Driver not found with email: " + email));
     }
 
+    // Get driver to dto
     public DriverDTO getDriverToDTO(Driver driver) {
         DriverDTO dto = new DriverDTO();
 
@@ -176,6 +187,7 @@ public class DriverService {
         dto.setRole(driver.getUserAccount().getRole());
         dto.setUserId(driver.getUserAccount().getUuid());
         dto.setTotalNumberOfStudents(driver.getTotalNumberOfStudents());
+
 
         // Map location properly
         if (driver.getDriverLocation() != null) {
@@ -201,6 +213,62 @@ public class DriverService {
         } else {
             dto.setAssignedStudents(new ArrayList<>());
         }
+
+        return dto;
+    }
+
+    // Get list of student by each province
+    public List<Student> getStudentsByDriverProvince(Province province) {
+        return studentRepository.findByParent_ParentLocation_Province(province);
+    }
+
+    // Get driver uuid by email
+    public UUID getDriverUUIDByEmail(String email) {
+        return driverRepository
+                .findByUserAccountEmail(email)
+                .orElseThrow(() -> new RuntimeException("Driver not found"))
+                .getDriverUUID();
+    }
+
+    // Assigning driver to the student
+    @Transactional
+    public void assignDriverToStudent(UUID driverId, UUID studentId) {
+
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        // THIS LINE IS THE FIX
+        student.setDriver(driver);
+
+        // keep both sides in sync
+        driver.getAssignedStudents().add(student);
+
+        studentRepository.save(student);
+    }
+
+    // Get the current driver by uuid
+    @Transactional(readOnly = true)
+    public DriverDTO getCurrentDriver(UUID driverUUID) {
+
+        // Fetch driver
+        Driver driver = driverRepository.findById(driverUUID)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+
+        // Fetch assigned students directly from repository
+        List<Student> assignedStudents = studentRepository.findByDriver_DriverUUID(driverUUID);
+
+        // Convert students to DTOs
+        List<StudentDTO> assignedStudentDTOs = assignedStudents.stream()
+                .map(StudentDTO::new)
+                .collect(Collectors.toList());
+
+        // Create DTO with students included
+        DriverDTO dto = new DriverDTO(driver, true);
+        dto.setAssignedStudents(assignedStudentDTOs);
+        dto.setTotalNumberOfStudents(assignedStudentDTOs.size());
 
         return dto;
     }

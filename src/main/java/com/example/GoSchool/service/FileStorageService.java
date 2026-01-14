@@ -32,6 +32,7 @@ public class FileStorageService {
         }
     }
 
+    // Store files
     public String storeFile(MultipartFile file, String subDirectory) {
         // Validate file
         if (file.getOriginalFilename() == null || file.getOriginalFilename().contains("..")) {
@@ -63,6 +64,7 @@ public class FileStorageService {
         }
     }
 
+    // Is valid filter type or not
     private boolean isValidFileType(String contentType) {
         return contentType != null && (
                 contentType.equals("application/pdf") ||
@@ -72,6 +74,7 @@ public class FileStorageService {
         );
     }
 
+     // Load filter as resource
     public Resource loadFileAsResource(String fileName) {
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
